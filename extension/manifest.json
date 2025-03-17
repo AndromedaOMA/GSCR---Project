@@ -1,0 +1,45 @@
+{
+    "manifest_version": 3,
+    "name": "Text Enhancer",
+    "version": "1.0",
+    "description": "Corrects grammar and rewrites text.",
+    "permissions": [
+        "scripting",
+        "activeTab",
+        "storage"
+    ],
+    "host_permissions": [
+        "http://localhost:5000/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "media/icon.png",
+            "48": "media/icon.png",
+            "128": "media/icon.png"
+        }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "media/icon.png"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}
