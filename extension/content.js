@@ -71,20 +71,23 @@ function addCorrectionButton(inputField) {
     document.body.appendChild(button);
 
     // Handle correction
-    button.onclick = async function () {
+    button.onclick = async function (event) {
+        event.stopPropagation();
         let correctedText = await fetchCorrectedText(getFieldValue(inputField));
         console.log("Corrected:", correctedText); // Let this be
         setFieldValue(inputField, correctedText);
     };
-
+    
     inputField.addEventListener("focusout", function () {
         setTimeout(() => {
-            button.remove();
-            window.removeEventListener("scroll", scrollHandler);
-            window.removeEventListener("resize", resizeHandler);
-            resizeObserver.disconnect(); // Stop watching the element size
-        }, 100); // Delay needed!
-    });
+            if (!document.activeElement || document.activeElement !== button) {
+                button.remove();
+                window.removeEventListener("scroll", scrollHandler);
+                window.removeEventListener("resize", resizeHandler);
+                resizeObserver.disconnect();
+            }
+        }, 100);
+    });    
 }
 
 
