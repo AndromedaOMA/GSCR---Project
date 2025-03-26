@@ -55,13 +55,13 @@ The main objectives to achieve through this assignment include:
 
 * [Table Of Content](#table-of-content)
 
-<h1 id="texh" align="left">Technologies and Programming Languages:</h1>
+<h1 id="tech" align="left">Technologies and Programming Languages:</h1>
 
 ● Programming Language: Python </br>
 ● Frameworks and Libraries: PyTorch, Teprolin, spaCy, MarianMT, RoBERT </br>
 ● Additional Tools: pattern-matching algorithms, dictionary-based spell-checking, Active Learning frameworks </br>
 
-<h1 id="stages" align="left">Technologies and Programming Languages:</h1>
+<h1 id="stages" align="left">Implementation Stages:</h1>
 
 Phase 1 (Research and Setup): Literature review, dataset collection, setting up development environment. </br>
 Phase 2 (Preprocessing Module Implementation): Implementing tokenization, POS tagging, diacritic normalization using Teprolin, spaCy. </br>
