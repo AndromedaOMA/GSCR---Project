@@ -6,17 +6,16 @@ model = AutoModelForSeq2SeqLM.from_pretrained("BlackKakapo/t5-small-grammar-ro-r
 
 if __name__ == "__main__":
     # Textul de corectat
-    sent = "Miar placea sa merg la munca"
+    sent = ["Miar placea sa merg la munca", "ma doar capul foarrte tare", "Mănanc mazăre cu maree pofta", "Am bafta la bani"]
     prefix = "grammar: "
-    example = prefix + sent
+    for text in sent:
+        example = prefix + text
 
-    # Tokenizare
-    inputs = tokenizer(example, return_tensors="pt")
+        # Tokenizare
+        inputs = tokenizer(example, return_tensors="pt")
+        # Generare corectare
+        outputs = model.generate(**inputs)
+        # Decodificare rezultat
+        corrected_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    # Generare corectare
-    outputs = model.generate(**inputs)
-
-    # Decodificare rezultat
-    corrected_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    print("Text corectat:", corrected_text)
+        print(f"Initial text: {text}\nCorrected text: {corrected_text}\n")
