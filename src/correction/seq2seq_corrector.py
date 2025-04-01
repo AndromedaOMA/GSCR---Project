@@ -1,21 +1,16 @@
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-# Încarcă tokenizer-ul și modelul
-tokenizer = AutoTokenizer.from_pretrained("BlackKakapo/t5-small-grammar-ro-root")
-model = AutoModelForSeq2SeqLM.from_pretrained("BlackKakapo/t5-small-grammar-ro-root")
 
-if __name__ == "__main__":
-    # Textul de corectat
-    sent = ["Miar placea sa merg la munca", "ma doar capul foarrte tare", "Mănanc mazăre cu maree pofta", "Am bafta la bani"]
+def generate_corrections(text, num_options=5):
+    """ Generează multiple opțiuni de corectare pentru un text dat """
+    tokenizer = AutoTokenizer.from_pretrained("BlackKakapo/t5-small-grammar-ro-root")
+    model = AutoModelForSeq2SeqLM.from_pretrained("BlackKakapo/t5-small-grammar-ro-root")
+
     prefix = "grammar: "
-    for text in sent:
-        example = prefix + text
+    input_text = prefix + text
+    inputs = tokenizer(input_text, return_tensors="pt")
 
-        # Tokenizare
-        inputs = tokenizer(example, return_tensors="pt")
-        # Generare corectare
-        outputs = model.generate(**inputs)
-        # Decodificare rezultat
-        corrected_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    outputs = model.generate(**inputs, num_return_sequences=num_options, num_beams=num_options)
 
-        print(f"Initial text: {text}\nCorrected text: {corrected_text}\n")
+    options = [tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
+    return options
