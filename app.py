@@ -1,9 +1,14 @@
+import sys
+import pathlib
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import load_model, generate_corrections
+
+sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
+
+from src.models import load_model, generate_corrections
 from database.database import store_feedback, init_db
-from active_learning import run_active_learning
+from src.active_learning import run_active_learning
 
 DB_PATH = "feedback.db"
 init_db(DB_PATH)

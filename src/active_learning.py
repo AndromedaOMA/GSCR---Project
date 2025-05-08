@@ -1,7 +1,4 @@
-# active_learning.py
-
 import sqlite3
-import json
 from pathlib import Path
 
 from datasets import Dataset
@@ -15,7 +12,7 @@ def run_active_learning(
     model,
     tokenizer,
     db_path: str,
-    output_dir: str = "./t5-grammar-finetuned",
+    output_dir: str = "../../t5-grammar-finetuned",
     epochs: int = 1,
     batch_size: int = 8,
     learning_rate: float = 5e-5,
