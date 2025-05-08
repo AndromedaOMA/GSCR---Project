@@ -137,6 +137,20 @@ trainer = Seq2SeqTrainer(
     compute_metrics=compute_metrics
 )
 
+#
+#
+# Uncomment to skip fine-tuning (create a filler directory "t5-grammar-finetuned")
+#
+#
+
+# os.makedirs(output_dir, exist_ok=True)
+# print(f"[INFO] Saving un-trained (random) model into {output_dir}…")
+# model.save_pretrained(output_dir)
+# tokenizer.save_pretrained(output_dir)
+# print(f"[INFO] Done. Exiting before any training.")
+# import sys
+# sys.exit(0)
+
 trainer.train()
 
 # Save model
