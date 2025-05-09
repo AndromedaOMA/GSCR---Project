@@ -32,24 +32,30 @@ def is_base_letter_and_diacritic_form(char1: str, char2: str) -> bool:
 
 def levenshtein(w1: str, w2: str) -> float:
     """
-    Compute the Levenshtein edit distance between w1 and w2,
-    treating a diacritic substitution as cost 0.25 instead of 1
+    Return True if char1 and char2 share the same base letter but differ
+    by a diacritic (precomposed or combining form).
     """
     m, n = len(w1), len(w2)
     prev = list(range(n + 1))
-    curr = [0] * (n + 1)
+    curr = [0.0] * (n + 1)
 
     for i in range(m):
         curr[0] = i + 1
         for j in range(n):
-            sub_cost = 0 if (w1[i] == w2[j] or is_base_letter_and_diacritic_form(w1[i], w2[j])) else 1
+            if w1[i] == w2[j]:
+                sub_cost = 0.0
+            elif is_base_letter_and_diacritic_form(w1[i], w2[j]):
+                sub_cost = 0.25
+            else:
+                sub_cost = 1.0
+
             cost_sub = prev[j] + sub_cost
             curr[j+1] = min(
-                prev[j+1] + 1,    # deletion
-                curr[j]   + 1,    # insertion
-                cost_sub          # substitution (0/0.25/1)
+                prev[j+1] + 1,     # deletion
+                curr[j]   + 1,     # insertion
+                cost_sub           # substitution (0/0.25/1)
             )
-        prev, curr = curr, [0] * (n + 1)
+        prev, curr = curr, [0.0] * (n + 1)
 
     return float(prev[n])
 
