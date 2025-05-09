@@ -60,7 +60,7 @@ def levenshtein(word1, word2):
 # Function that loads the vocabulary used for testing
 # Assumed to be file input (i.e. from .txt) but can be easily modified
 # Return a dictionary scored as 0 for all words to be checked
-def load_vocab(filename):
+def load_vocab(filename='src/dict_matching/testing_corpus.txt'):
     try:
         vocabulary_scores = {}
         with open(filename, 'r', encoding='utf-8') as vocabulary_file:
@@ -98,8 +98,7 @@ def pattern_match_vocab(vocabulary, chosen_word, chosen_accuracy=3):
 # For testing mostly as obviously this will be called inside another program
 # NOT CONFIGURED FOR INTEGRATION YET
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 2:
         chosen_word = sys.argv[1]
-        filename = sys.argv[2]
-        vocabulary = load_vocab(filename)
-        print(pattern_match_vocab(vocabulary, chosen_word, 3))
+        vocabulary = load_vocab()
+        print(pattern_match_vocab(vocabulary, chosen_word, 1))
