@@ -13,3 +13,4 @@ sacrebleu
 spacy
 spacy-lookups-data
 APScheduler
+symspellpy
