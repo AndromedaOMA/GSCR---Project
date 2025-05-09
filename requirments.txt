@@ -1,0 +1,15 @@
+flask
+flask-cors
+torch
+torchvision
+torchaudio
+transformers
+requests
+scikit-learn
+pandas
+numpy
+datasets
+sacrebleu
+spacy
+spacy-lookups-data
+APScheduler

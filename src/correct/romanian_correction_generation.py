@@ -17,10 +17,11 @@ set_seed(42)
 
 # Config
 model_name = "BlackKakapo/t5-small-grammar-ro-root"
-train_file = "data/train.txt"
-eval_file = "data/dev.txt"
-test_file = "data/test.txt"
-output_dir = "t5-grammar-finetuned"
+base_path = "../../GEC"
+train_path = f"{base_path}/train.txt"
+eval_path = f"{base_path}/dev.txt"
+test_path = f"{base_path}/test.txt"
+output_dir = "../../t5-grammar-finetuned"
 max_input_length = 96
 max_target_length = 128
 num_train_epochs = 10
@@ -69,9 +70,9 @@ def preprocess(example):
 
 
 # Tokenizing and preprocessing
-train_dataset = Dataset.from_list(load_sentence_pairs(train_file)).map(preprocess)
-eval_dataset = Dataset.from_list(load_sentence_pairs(eval_file)).map(preprocess)
-test_dataset = Dataset.from_list(load_sentence_pairs(test_file)).map(preprocess)
+train_dataset = Dataset.from_list(load_sentence_pairs(train_path)).map(preprocess)
+eval_dataset = Dataset.from_list(load_sentence_pairs(eval_path)).map(preprocess)
+test_dataset = Dataset.from_list(load_sentence_pairs(test_path)).map(preprocess)
 
 
 # Metric only for generational AI
@@ -135,6 +136,20 @@ trainer = Seq2SeqTrainer(
     tokenizer=tokenizer,
     compute_metrics=compute_metrics
 )
+
+#
+#
+# Uncomment to skip fine-tuning (create a filler directory "t5-grammar-finetuned")
+#
+#
+
+# os.makedirs(output_dir, exist_ok=True)
+# print(f"[INFO] Saving un-trained (random) model into {output_dir}…")
+# model.save_pretrained(output_dir)
+# tokenizer.save_pretrained(output_dir)
+# print(f"[INFO] Done. Exiting before any training.")
+# import sys
+# sys.exit(0)
 
 trainer.train()
 

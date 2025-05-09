@@ -1,8 +1,0 @@
-pip install flask
-from flask import Flask, request, jsonify
-pip install flask-cors
-
-pip install cryptography // not needed anymore?
-
-
-python app.py
