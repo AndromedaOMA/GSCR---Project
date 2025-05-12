@@ -12,6 +12,9 @@ from src.models import load_model, generate_corrections
 from database.database import store_feedback, init_db
 from src.active_learning import run_active_learning
 from src.correct_word.levenshtein import recommend_corrected_word
+from src.suggestion_ranker import rank_suggestions
+
+
 
 DB_PATH = "feedback.db"
 init_db(DB_PATH)
@@ -95,6 +98,27 @@ def feedback():
                    db_path="feedback.db")
 
     return add_cors_headers(jsonify({"status": "ok"}))
+
+@app.route('/suggest', methods=['POST'])
+def suggest():
+    """
+    Return the top-N corrections *with scores* so the client can
+    surface a dropdown of “best” → “good” → “okay”.
+    """
+    data = request.get_json(force=True)
+    text = data.get("text")
+    if not text:
+        return jsonify({"error": "Missing 'text' in payload"}), 400
+
+    raw = generate_corrections(model, tokenizer, text, num_suggestions=5)
+    ranked = rank_suggestions(original=text, suggestions=raw, metric="bleu")
+    out = [{"suggestion": s, "score": float(score)} for s, score in ranked]
+
+    return add_cors_headers(jsonify({
+        "original": text,
+        "ranked_suggestions": out
+    }))
+
 
 @app.route('/word', methods=['POST'])
 def correct_word():

@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from database.database import init_db
 
 from datasets import Dataset
 from transformers import (
@@ -12,7 +13,7 @@ def run_active_learning(
     model,
     tokenizer,
     db_path: str,
-    output_dir: str = "../../t5-grammar-finetuned",
+    output_dir: str = "t5-grammar-finetuned",
     epochs: int = 1,
     batch_size: int = 8,
     learning_rate: float = 5e-5,
@@ -24,6 +25,7 @@ def run_active_learning(
     4) Saves model/tokenizer back to `output_dir`.
     """
     # load feedback
+    init_db(db_path)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT original, chosen FROM feedback")
