@@ -19,6 +19,23 @@ window.fetchCorrectedText = async (text) => {
     }
 }
 
+window.fetchActiveLearning = async (original, suggestions, chosen) => {
+    try {
+        let response = await fetch("https://localhost:5001/feedback", {
+            method: "POST",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ original, suggestions, chosen })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("Fetch Error:", error);
+    }
+}
+
 window.fetchSynonyms = async (word) => {
     try {
         let response = await fetch("https://localhost:5001/synonym", {

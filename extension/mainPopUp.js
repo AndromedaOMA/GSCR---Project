@@ -1,4 +1,4 @@
-function addOption(sel, recommendation, activeLearning = false) {
+function addOption(sel, chosen, recommendations, activeLearning = false) {
     const container = document.getElementById("recommendationsContainer");
 
     const item = document.createElement("div");
@@ -23,7 +23,7 @@ function addOption(sel, recommendation, activeLearning = false) {
 
     // Left: the text
     const span = document.createElement("span");
-    span.textContent = recommendation;
+    span.textContent = chosen;
     span.style.flex = "1";
 
     // Right: the checkmark
@@ -43,20 +43,20 @@ function addOption(sel, recommendation, activeLearning = false) {
     item.addEventListener("focus", () => { check.style.opacity = "1"; });
     item.addEventListener("blur", () => { check.style.opacity = "0"; });
 
-    // Clicking the entire item applies the recommendation
+    // Clicking the entire item applies the chosen
     item.tabIndex = 0;  // make it focusable
     item.addEventListener("click", () => {
-        setFieldValue(recommendation, sel.start, sel.end);
+        setFieldValue(chosen, sel.start, sel.end);
         if (activeLearning) {
-            // TODO
+            fetchActiveLearning(sel.text, recommendations, chosen);
         }
         document.getElementById("wordSuggestPopup")?.remove();
     });
     item.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") {
-            setFieldValue(recommendation, sel.start, sel.end);
+            setFieldValue(chosen, sel.start, sel.end);
             if (activeLearning) {
-                // TODO
+                fetchActiveLearning(sel.text, recommendations, chosen);
             }
             document.getElementById("wordSuggestPopup")?.remove();
             e.preventDefault();
@@ -102,7 +102,7 @@ function popUpContent(newSelection, popup) {
             return;
         }
 
-        recommendations.forEach(rec => addOption(sel, rec, false));
+        recommendations.forEach(rec => addOption(sel, rec, recommendations, false));
     };
 
     const onSynonym = async sel => {
@@ -119,7 +119,7 @@ function popUpContent(newSelection, popup) {
             return;
         }
 
-        recommendations.forEach(rec => addOption(sel, rec, false));
+        recommendations.forEach(rec => addOption(sel, rec, recommendations, false));
     };
 
     const onCorrect = async sel => {
@@ -137,7 +137,7 @@ function popUpContent(newSelection, popup) {
             return;
         }
 
-        recommendations.forEach(rec => addOption(sel, rec, true));
+        recommendations.forEach(rec => addOption(sel, rec, recommendations, true));
     };
 
     // Create buttons

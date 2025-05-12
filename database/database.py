@@ -24,7 +24,7 @@ def init_db(db_path: str):
     conn.close()
 
 
-def store_feedback(original: str, suggestions: list, chosen: str, db_path: str = 'feedback.db'):
+def store_feedback(original: str, suggestions: list, chosen: str, db_path: str = '../feedback.db'):
     """
     Save user feedback to the database.
 
@@ -50,7 +50,7 @@ def store_feedback(original: str, suggestions: list, chosen: str, db_path: str =
     conn.close()
 
 
-def fetch_all_feedback(db_path: str = 'feedback.db') -> list:
+def fetch_all_feedback(db_path: str = '../feedback.db') -> list:
     """
     Retrieve all feedback entries from the database.
 
@@ -81,7 +81,7 @@ def fetch_all_feedback(db_path: str = 'feedback.db') -> list:
     return feedback_list
 
 
-def clear_feedback(db_path: str = 'feedback.db'):
+def clear_feedback(db_path: str = '../feedback.db'):
     """
     Remove all feedback entries from the database.
 
@@ -96,3 +96,6 @@ def clear_feedback(db_path: str = 'feedback.db'):
     cursor.execute("DELETE FROM feedback")
     conn.commit()
     conn.close()
+    
+if __name__=="__main__":
+    print(fetch_all_feedback())
