@@ -26,7 +26,6 @@ def is_base_letter_and_diacritic_form(char1: str, char2: str) -> bool:
 
     b1, _ = split_base_and_marks(char1)
     b2, _ = split_base_and_marks(char2)
-    # same single‑letter base, different full characters
     return len(b1) == len(b2) == 1 and b1 == b2 and char1 != char2
 
 

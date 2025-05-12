@@ -23,7 +23,7 @@ init_db(DB_PATH)
 model_path = "./t5-grammar-finetuned"
 model, tokenizer = load_model(model_path)
 
-# Schedule the active learning process to run every 3 days(number of days can be changed)
+# Schedule the active learning process to run every 3 days
 scheduler = BackgroundScheduler()
 scheduler.add_job(
     run_active_learning,
@@ -63,25 +63,6 @@ def preflight():
     response = jsonify({"message": "CORS preflight successful"})
     return add_cors_headers(response)
 
-# @app.route('/correct', methods=['POST'])
-# def correct_text():
-#     data = request.get_json()
-#     if data is None or "text" not in data:
-#         return jsonify({"error": "Invalid request, 'text' key missing"}), 400
-#
-#     text = data["text"]
-#     suggestions = generate_corrections(model, tokenizer, text, num_suggestions=5)
-#     corrected = suggestions[0] if suggestions else text
-#
-#     response = jsonify({
-#         "original": text,
-#         "corrected": corrected,
-#         "suggestions": suggestions
-#     })
-#     return add_cors_headers(response)
-
-# inside app.py
-
 from src.suggestion_ranker import rank_suggestions
 
 @app.route('/correct', methods=['POST'])
@@ -108,19 +89,17 @@ def feedback():
     data = request.get_json(force=True)
     orig        = data.get("original")
     suggestions = data.get("suggestions", [])
-    chosen      = data.get("chosen")   # index sau textul selectat
+    chosen      = data.get("chosen")
 
     if not orig or chosen is None:
         return jsonify({"error": "Insufficient payload"}), 400
 
-    # stochează în DB pentru antrenamente viitoare
     store_feedback(original=orig,
                    suggestions=suggestions,
                    chosen=chosen,
                    db_path="feedback.db")
 
     return add_cors_headers(jsonify({"status": "ok"}))
-
 
 @app.route('/word', methods=['POST'])
 def correct_word():
@@ -130,12 +109,14 @@ def correct_word():
 
     word = data["word"]
     suggestions = recommend_corrected_word(word, num_suggestions=5)
+    if not suggestions:
+        suggestions = generate_corrections(model, tokenizer, word, num_suggestions=5)
 
-    response = jsonify({
+    return add_cors_headers(jsonify({
         "original": word,
         "suggestions": suggestions
-    })
-    return add_cors_headers(response)
+    }))
+
 
 @app.route('/synonym', methods=['POST'])
 def recommend_wordnet():
