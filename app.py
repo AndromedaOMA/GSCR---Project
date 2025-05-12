@@ -13,7 +13,7 @@ from database.database import store_feedback, init_db
 from src.active_learning import run_active_learning
 from src.correct_word.levenshtein import recommend_corrected_word
 from src.suggestion_ranker import rank_suggestions
-
+from src.preprocess.teprolin_pipeline import teprolin_preprocess
 
 
 DB_PATH = "feedback.db"
@@ -35,7 +35,6 @@ scheduler.start()
 
 app = Flask(__name__)
 
-# ✅ Allow only requests from your Chrome extension
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
 
 @app.after_request
@@ -63,8 +62,6 @@ def preflight():
     response = jsonify({"message": "CORS preflight successful"})
     return add_cors_headers(response)
 
-from src.suggestion_ranker import rank_suggestions
-
 @app.route('/correct', methods=['POST'])
 def correct_text():
     data = request.get_json(force=True)
@@ -72,10 +69,12 @@ def correct_text():
     if data is None or "text" not in data:
         return jsonify({"error": "Invalid request, 'text' key missing"}), 400
 
-    raw_suggestions = generate_corrections(model, tokenizer, text, num_suggestions=5)
+    teprolin_result = teprolin_preprocess(text)
+    corrected_text = teprolin_result["teprolin-result"]["text"]
+    raw_suggestions = generate_corrections(model, tokenizer, corrected_text, num_suggestions=5)
     ranked = rank_suggestions(original=text, suggestions=raw_suggestions, metric="bleu")
     suggestions = [s for s, _ in ranked]
-    corrected   = suggestions[0] if suggestions else text
+    corrected   = suggestions[0] if suggestions else corrected_text
 
     return add_cors_headers(jsonify({
         "original":    text,
