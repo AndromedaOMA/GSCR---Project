@@ -81,7 +81,19 @@ def correct_text():
         "corrected":   corrected,
         "suggestions": suggestions
     }))
+    
+@app.route('/check', methods=['POST'])
+def check_and_correct_text():
+    data = request.get_json(force=True)
+    text = data.get("text")
+    if data is None or "text" not in data:
+        return jsonify({"error": "Invalid request, 'text' key missing"}), 400
 
+    corrected = "FILLER, TODO" # Returnati doar prima sugestie!
+
+    return add_cors_headers(jsonify({
+        "corrected":   corrected,
+    }))
 
 @app.route('/feedback', methods=['POST'])
 def feedback():

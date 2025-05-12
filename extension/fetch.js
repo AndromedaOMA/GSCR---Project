@@ -19,6 +19,27 @@ window.fetchCorrectedText = async (text) => {
     }
 }
 
+window.fetchCheckedAndCorrectedText = async (text) => {
+    try {
+        let response = await fetch("https://localhost:5001/check", {
+            method: "POST",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        return text;
+    }
+}
+
 window.fetchActiveLearning = async (original, suggestions, chosen) => {
     try {
         let response = await fetch("https://localhost:5001/feedback", {

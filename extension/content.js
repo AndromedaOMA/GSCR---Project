@@ -90,7 +90,7 @@ function addCorrectionButton(inputField) {
     // Handle correction
     button.onclick = async function (event) {
         event.stopPropagation();
-        let correctedText = await window.fetchCorrectedText(getFieldValue(inputField));
+        let correctedText = await window.fetchCheckedAndCorrectedText(getFieldValue(inputField));
         console.log("Corrected:", correctedText.corrected); // Let this be
         setFieldValue(correctedText.corrected);
     };
