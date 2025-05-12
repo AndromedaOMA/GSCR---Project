@@ -4,6 +4,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from src.wordnet.wordnet import get_related_forms
+
 sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
 
 from src.models import load_model, generate_corrections
@@ -105,6 +107,20 @@ def correct_word():
 
     response = jsonify({
         "original": word,
+        "suggestions": suggestions
+    })
+    return add_cors_headers(response)
+
+@app.route('/wordnet', methods=['POST'])
+def recommend_wordnet():
+    data = request.get_json()
+    if data is None or "word" not in data:
+        return jsonify({"error": "Invalid request, 'word' key missing"}), 400
+
+    word = data["word"]
+    suggestions = get_related_forms(word)
+
+    response = jsonify({
         "suggestions": suggestions
     })
     return add_cors_headers(response)

@@ -1,18 +1,12 @@
-# rown_lookup.py
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from collections import defaultdict
 
-# adjust this to point at your XML file
 ROW_XML_PATH = Path(__file__).resolve().parents[2] / "src" / "wordnet" / "extract" / "rown.xml"
 
 
-# --- data structures ---
-# literal → set of synset IDs
 _literal_to_synsets: dict[str, set[str]] = defaultdict(set)
-# synset ID → list of synonyms (literals)
 _synset_to_literals: dict[str, list[str]] = {}
-# synset ID → list of hypernym synset IDs
 _synset_to_hypernyms: dict[str, list[str]] = defaultdict(list)
 
 
@@ -39,11 +33,6 @@ _load_rown()
 
 
 def get_synonyms(word: str) -> list[str]:
-    """
-    Return all synonyms (literal forms) of `word`.
-    Looks up all synsets containing `word`, then unions
-    all literals in those synsets (excluding `word` itself).
-    """
     syns = set()
     for sid in _literal_to_synsets.get(word, []):
         for lit in _synset_to_literals.get(sid, []):
@@ -53,10 +42,6 @@ def get_synonyms(word: str) -> list[str]:
 
 
 def get_hypernyms(word: str) -> list[str]:
-    """
-    Return all direct hypernyms of `word` as literal forms.
-    Follows the "hypernym" ILR links from each synset containing `word`.
-    """
     hypers = set()
     for sid in _literal_to_synsets.get(word, []):
         for hyper_sid in _synset_to_hypernyms.get(sid, []):
@@ -67,12 +52,7 @@ def get_hypernyms(word: str) -> list[str]:
 
 # optional: reverse lookup
 def get_hyponyms(word: str) -> list[str]:
-    """
-    Return all direct hyponyms of `word` as literal forms.
-    Hyponyms are synsets that list `word`'s synset ID as their hypernym.
-    """
     hypos = set()
-    # find all synset IDs where any hypernym target matches a synset of `word`
     target_sids = _literal_to_synsets.get(word, set())
     for sid, hyper_list in _synset_to_hypernyms.items():
         if any(h in target_sids for h in hyper_list):
@@ -82,7 +62,6 @@ def get_hyponyms(word: str) -> list[str]:
 
 
 if __name__ == "__main__":
-    # quick manual test
     for w in ["mașină"]:
         print(f"\nWord: {w}")
         print(" Synonyms:   ", get_synonyms(w))
