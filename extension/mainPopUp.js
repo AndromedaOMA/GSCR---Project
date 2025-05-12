@@ -245,7 +245,7 @@ window.showMainPopUp = (newSelection, clickX, clickY) => {
     Object.assign(popup.style, {
         position: "absolute",
         left: "50%",
-        bottom: "5px",
+        bottom: "20px",
         transform: "translateX(-50%)",
         padding: "1em",
         border: "1px solid #888",
