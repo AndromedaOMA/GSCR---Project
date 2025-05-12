@@ -1,4 +1,7 @@
-document.addEventListener("focusin", function (event) {
+// Prerequisites (selection event handling, first render call to add btn)
+window.activeField = null;
+
+document.addEventListener("focusin", (event) => {
     let target = event.target;
 
     // Normal input/textarea OR a custom contenteditable div
@@ -9,11 +12,24 @@ document.addEventListener("focusin", function (event) {
         target.getAttribute("role") === "textbox"
         // Could be more
     ) {
+        activeField = target;
         addCorrectionButton(target);
     }
 });
 
-// General function to position the button
+["mouseup","keyup"].forEach(evt =>
+  document.addEventListener(evt, ev => {
+    if (!activeField) return;
+    const clickX = ev.pageX, clickY = ev.pageY;
+    const selInfo = captureSelection(activeField, ev);
+    if (selInfo) {
+      showMainPopUp(selInfo, clickX, clickY);
+    }
+  })
+);
+
+
+// Function to position the button
 function positionButton(inputField, button, buttonDimension) {
     let rect = inputField.getBoundingClientRect();
     button.style.top = `${window.scrollY + rect.top + rect.height / 2 - buttonDimension / 2}px`;
@@ -61,10 +77,10 @@ function addCorrectionButton(inputField) {
     // Position & event listeners
     positionButton(inputField, button, buttonDimension);
     let resizeObserver = observeFieldResize(inputField, button);
-    
+
     let scrollHandler = () => positionButton(inputField, button, buttonDimension);
     let resizeHandler = () => positionButton(inputField, button, buttonDimension);
-    
+
     window.addEventListener("scroll", scrollHandler);
     window.addEventListener("resize", resizeHandler);
 
@@ -73,11 +89,11 @@ function addCorrectionButton(inputField) {
     // Handle correction
     button.onclick = async function (event) {
         event.stopPropagation();
-        let correctedText = await fetchCorrectedText(getFieldValue(inputField));
+        let correctedText = await window.fetchCorrectedText(getFieldValue(inputField));
         console.log("Corrected:", correctedText); // Let this be
         setFieldValue(inputField, correctedText);
     };
-    
+
     inputField.addEventListener("focusout", function () {
         setTimeout(() => {
             if (!document.activeElement || document.activeElement !== button) {
@@ -87,7 +103,7 @@ function addCorrectionButton(inputField) {
                 resizeObserver.disconnect();
             }
         }, 100);
-    });    
+    });
 }
 
 
@@ -98,86 +114,5 @@ function getFieldValue(field) {
         return field.value;
     } else {
         return field.innerText;
-    }
-}
-
-function findTextElement(parent) {
-    // Get the element with the text itself
-    if (parent.innerText.trim().length > 0) return parent;
-
-    let walker = document.createTreeWalker(parent, NodeFilter.SHOW_ELEMENT, null, false);
-    while (walker.nextNode()) {
-        let node = walker.currentNode;
-        if (node.innerText.trim().length > 0) {
-            return node;
-        }
-    }
-    return null;
-}
-
-function setFieldValue(field, text) {
-    if (field.tagName === "INPUT" || field.tagName === "TEXTAREA") {
-        field.value = text;
-        field.dispatchEvent(new Event("input", { bubbles: true }));
-    } else {
-        field.focus();
-
-        let targetElement = findTextElement(field);
-        if (!targetElement) return;
-
-        let site = window.location.hostname;
-
-        // Messenger requires a lot more than normal sites
-        if (site.includes("facebook.com")) {
-            // Delete text with backspace
-            let existingText = targetElement.innerText.trim();
-            for (let i = 0; i < existingText.length; i++) {
-                field.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Backspace" }));
-                field.dispatchEvent(new InputEvent("input", { bubbles: true }));
-                field.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "Backspace" }));
-            }
-
-            // Paste text via ClipboardEvent
-            let clipboardEvent = new ClipboardEvent("paste", {
-                bubbles: true,
-                cancelable: true,
-                clipboardData: new DataTransfer(),
-            });
-
-            clipboardEvent.clipboardData.setData("text/plain", text);
-            field.dispatchEvent(clipboardEvent);
-        } else {
-            targetElement.innerText = text;
-            targetElement.dispatchEvent(new InputEvent("input", { bubbles: true }));
-
-            let range = document.createRange();
-            let selection = window.getSelection();
-            range.selectNodeContents(targetElement);
-            range.collapse(false); // Move cursor to end
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-    }
-}
-// **
-
-async function fetchCorrectedText(text) {
-    try {
-        let response = await fetch("https://localhost:5000/correct", {
-            method: "POST",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        let data = await response.json();
-        return data.corrected;
-    } catch (error) {
-        console.error("Fetch Error:", error);
-        return text;
     }
 }

@@ -9,7 +9,7 @@
         "storage"
     ],
     "host_permissions": [
-        "http://localhost:5000/*"
+        "http://localhost:5001/*"
     ],
     "background": {
         "service_worker": "background.js"
@@ -20,6 +20,10 @@
                 "<all_urls>"
             ],
             "js": [
+                "fetch.js",
+                "setFieldValue.js",
+                "selection.js",
+                "mainPopUp.js",
                 "content.js"
             ]
         }
@@ -35,7 +39,8 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "media/icon.png"
+                "media/icon.png",
+                "media/checkmark.svg"
             ],
             "matches": [
                 "<all_urls>"
