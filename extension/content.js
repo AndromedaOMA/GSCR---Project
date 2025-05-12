@@ -22,7 +22,8 @@ document.addEventListener("focusin", (event) => {
     if (!activeField) return;
     const clickX = ev.pageX, clickY = ev.pageY;
     const selInfo = captureSelection(activeField, ev);
-    if (selInfo) {
+    const mainPopUpExists = document.getElementById("wordSuggestAnchor")
+    if (selInfo && !mainPopUpExists) {
       showMainPopUp(selInfo, clickX, clickY);
     }
   })
@@ -90,8 +91,8 @@ function addCorrectionButton(inputField) {
     button.onclick = async function (event) {
         event.stopPropagation();
         let correctedText = await window.fetchCorrectedText(getFieldValue(inputField));
-        console.log("Corrected:", correctedText); // Let this be
-        setFieldValue(inputField, correctedText);
+        console.log("Corrected:", correctedText.corrected); // Let this be
+        setFieldValue(correctedText.corrected);
     };
 
     inputField.addEventListener("focusout", function () {

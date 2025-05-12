@@ -28,14 +28,6 @@ window.captureSelection = (field, ev) => {
     end -= trailingWS;
 
     const newSel = { start, end, text };
-    const old = lastSelection;
-    if (
-        newSel.text !== old.text ||
-        newSel.start !== old.start ||
-        newSel.end !== old.end
-    ) {
-        lastSelection = newSel;
-        return newSel;
-    }
-    return null;
+    lastSelection = newSel;
+    return newSel;
 };

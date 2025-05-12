@@ -12,10 +12,31 @@ window.fetchCorrectedText = async (text) => {
         }
 
         let data = await response.json();
-        return data.corrected;
+        return data;
     } catch (error) {
         console.error("Fetch Error:", error);
         return text;
+    }
+}
+
+window.fetchSynonyms = async (word) => {
+    try {
+        let response = await fetch("https://localhost:5001/synonym", {
+            method: "POST",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ word: word })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        let data = await response.json();
+        return data.suggestions;
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        return word;
     }
 }
 

@@ -40,7 +40,8 @@
         {
             "resources": [
                 "media/icon.png",
-                "media/checkmark.svg"
+                "media/checkmark.svg",
+                "media/synonym.svg"
             ],
             "matches": [
                 "<all_urls>"

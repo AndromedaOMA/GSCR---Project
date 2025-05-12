@@ -111,7 +111,7 @@ def correct_word():
     })
     return add_cors_headers(response)
 
-@app.route('/wordnet', methods=['POST'])
+@app.route('/synonym', methods=['POST'])
 def recommend_wordnet():
     data = request.get_json()
     if data is None or "word" not in data:

@@ -8,7 +8,7 @@ window.setFieldValue = (text, start = null, end = null) => {
         if (typeof start === "number" && typeof end === "number") {
             return orig.slice(0, start)
                 + text
-                + orig.slice(end + 1);
+                + orig.slice(end);
         }
         // no indices → replace all
         return text;
@@ -30,11 +30,16 @@ window.setFieldValue = (text, start = null, end = null) => {
 
         if (site.includes("facebook.com")) {
             // Facebook trick: backspace out everything, then paste newFull
+            // last part doesn't need to be reinserted, as it is not deleted
+            newFull = fullOrig.slice(0, start) + text + (text.endsWith(" ") ? "" : " ");
+
+            // Delete
             for (let i = 0; i < fullOrig.length; i++) {
                 field.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Backspace" }));
                 field.dispatchEvent(new InputEvent("input", { bubbles: true }));
                 field.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "Backspace" }));
             }
+
             let pasteEvt = new ClipboardEvent("paste", {
                 bubbles: true,
                 cancelable: true,
@@ -47,7 +52,7 @@ window.setFieldValue = (text, start = null, end = null) => {
             target.innerText = newFull;
             target.dispatchEvent(new InputEvent("input", { bubbles: true }));
 
-            // Move caret to end
+            // Move cursor to end
             let range = document.createRange();
             let sel = window.getSelection();
             range.selectNodeContents(target);
@@ -56,6 +61,7 @@ window.setFieldValue = (text, start = null, end = null) => {
             sel.addRange(range);
         }
     }
+    document.getElementById("wordSuggestAnchor")?.remove();
 }
 
 function findTextElement(parent) {

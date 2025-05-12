@@ -91,14 +91,52 @@ function popUpContent(newSelection, popup) {
     const onLevenshtein = async sel => {
         const recommendations = await window.fetchCorrectedWord(sel.text);
         const container = document.getElementById("recommendationsContainer");
+        if (!container) {
+            return;
+        }
+
         container.innerHTML = "";
+
+        if (!recommendations || recommendations.length === 0) {
+            container.textContent = "No available options";
+            return;
+        }
+
+        recommendations.forEach(rec => addOption(sel, rec, false));
+    };
+
+    const onSynonym = async sel => {
+        const recommendations = await window.fetchSynonyms(sel.text);
+        const container = document.getElementById("recommendationsContainer");
+        if (!container) {
+            return;
+        }
+
+        container.innerHTML = "";
+
+        if (!recommendations || recommendations.length === 0) {
+            container.textContent = "No available options. Make sure the selected word is written correctly (with diacritics).";
+            return;
+        }
+
         recommendations.forEach(rec => addOption(sel, rec, false));
     };
 
     const onCorrect = async sel => {
-        const recommendations = await window.fetchCorrectedText(sel.text);
+        const data = await window.fetchCorrectedText(sel.text);
+        const recommendations = data.suggestions;
         const container = document.getElementById("recommendationsContainer");
+        if (!container) {
+            return;
+        }
+        
         container.innerHTML = "";
+
+        if (!recommendations || recommendations.length === 0) {
+            container.textContent = "No available options";
+            return;
+        }
+
         recommendations.forEach(rec => addOption(sel, rec, true));
     };
 
@@ -121,6 +159,30 @@ function popUpContent(newSelection, popup) {
         onLevenshtein(newSelection);
     });
 
+    const btnSynonym = document.createElement("button");
+    btnSynonym.disabled = !isWord;
+    Object.assign(btnSynonym.style, {
+        flex: "1",
+        padding: "6px 0",
+        border: "1px solid #555",
+        background: isWord ? "#333" : "#222",
+        color: isWord ? "white" : "#777",
+        borderRadius: "4px",
+        cursor: isWord ? "pointer" : "not-allowed",
+    });
+
+    const synonymImg = document.createElement("img");
+    Object.assign(synonymImg.style, {
+        width: "2em",
+        height: "2em",
+    });
+
+    synonymImg.src = chrome.runtime.getURL("media/synonym.svg");
+    btnSynonym.appendChild(synonymImg);
+    btnSynonym.addEventListener("click", () => {
+        onSynonym(newSelection);
+    });
+
     const btnCor = document.createElement("button");
     btnCor.textContent = "Correct";
     Object.assign(btnCor.style, {
@@ -136,7 +198,7 @@ function popUpContent(newSelection, popup) {
         onCorrect(newSelection);
     });
 
-    container.append(btnLev, btnCor);
+    container.append(btnLev, btnSynonym, btnCor);
     popup.appendChild(container);
 
     const recommendationsDiv = document.createElement("div");
@@ -162,63 +224,46 @@ function popUpContent(newSelection, popup) {
 };
 
 window.showMainPopUp = (newSelection, clickX, clickY) => {
-    document.getElementById("wordSuggestPopup")?.remove();
+    document.getElementById("wordSuggestAnchor")?.remove();
 
+    // invisible anchor DIV at the click location
+    const anchor = document.createElement("div");
+    anchor.id = "wordSuggestAnchor";
+    Object.assign(anchor.style, {
+        position: "absolute",
+        left: `${clickX}px`,
+        top: `${clickY}px`,
+        width: "0",
+        height: "0",
+        zIndex: 10000
+    });
+    document.body.appendChild(anchor);
+
+    // popup as a child
     const popup = document.createElement("div");
     popup.id = "wordSuggestPopup";
     Object.assign(popup.style, {
         position: "absolute",
-        display: "flex",
-        flexDirection: "column",
+        left: "50%",
+        bottom: "5px",
+        transform: "translateX(-50%)",
         padding: "1em",
         border: "1px solid #888",
         borderRadius: "4px",
         background: "#242424",
         color: "white",
         boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-        zIndex: 10000,
+        width: "clamp(100px, 20em, 500px)"
     });
-    document.body.appendChild(popup);
-
-    // (re-)position the popup around clickX/clickY
-    const positionPopup = () => {
-        const pw = popup.offsetWidth, ph = popup.offsetHeight;
-        const sx = window.scrollX, sy = window.scrollY;
-        const vw = window.innerWidth, vh = window.innerHeight;
-
-        let left = clickX - pw / 2;
-        left = Math.max(sx + 5, Math.min(left, sx + vw - pw - 5));
-
-        let top = clickY + 5;
-        if (top + ph > sy + vh) {
-            top = clickY - 5 - ph;
-            top = Math.max(sy + 5, top);
-        }
-
-        popup.style.left = `${left}px`;
-        popup.style.top = `${top}px`;
-    };
+    anchor.appendChild(popup);
 
     popUpContent(newSelection, popup);
 
-    positionPopup();
-
-    // once recommendations appear, reposition again
-    const recContainer = popup.querySelector("#recommendationsContainer");
-    if (recContainer) {
-        const mo = new MutationObserver(() => {
-            positionPopup();
-        });
-        // watch for children being added
-        mo.observe(recContainer, { childList: true });
-        // mo.disconnect();
-    }
-
-    // outside‐click dismissal (2h lost here)
+    // dismiss on outside click (lost 2h here)
     setTimeout(() => {
         function outsideClickListener(e) {
-            if (!e.target.closest("#wordSuggestPopup")) {
-                popup.remove();
+            if (!anchor.contains(e.target)) {
+                anchor.remove();
                 document.removeEventListener("click", outsideClickListener);
             }
         }
