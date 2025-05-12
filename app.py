@@ -1,8 +1,14 @@
+import os
+import re
 import sys
 import pathlib
+import torch
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
+from transformers import (
+    AutoTokenizer,
+)
 
 from src.wordnet.wordnet import get_related_forms
 
@@ -14,6 +20,7 @@ from src.active_learning import run_active_learning
 from src.correct_word.levenshtein import recommend_corrected_word
 from src.suggestion_ranker import rank_suggestions
 from src.preprocess.teprolin_pipeline import teprolin_preprocess
+from src.detection.detect import HFWrapperULMFiT
 
 
 DB_PATH = "feedback.db"
@@ -22,6 +29,13 @@ init_db(DB_PATH)
 # Load model here once to avoid reloading on every request
 model_path = "./t5-grammar-finetuned"
 model, tokenizer = load_model(model_path)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+clf_model_path = os.path.join(pathlib.Path(__file__).parent, "src", "detection", "content", "trained_model_V2_2")
+clf_tokenizer = AutoTokenizer.from_pretrained(clf_model_path)
+clf_model = HFWrapperULMFiT.from_pretrained(str(clf_model_path)).to(device)
+clf_model.eval()
 
 # Schedule the active learning process to run every 3 days
 scheduler = BackgroundScheduler()
@@ -89,11 +103,24 @@ def check_and_correct_text():
     if data is None or "text" not in data:
         return jsonify({"error": "Invalid request, 'text' key missing"}), 400
 
-    corrected = "FILLER, TODO" # Returnati doar prima sugestie!
+    # Split input into sentences
+    sentences = re.split(r'(?<=[\.\!\?])\s+', text)
+    corrected_sentences = []
 
-    return add_cors_headers(jsonify({
-        "corrected":   corrected,
-    }))
+    for sent in sentences:
+        result = clf_model(**clf_tokenizer(sent, return_tensors="pt", truncation=True, padding=True).to(device))
+        is_correct = (torch.argmax(result['logits'], dim=1).item() == 0)
+        if is_correct:
+            corrected_sentences.append(sent)
+        else:
+            teprolin_result = teprolin_preprocess(sent)
+            cleaned = teprolin_result["teprolin-result"]["text"]
+            raw = generate_corrections(model, tokenizer, cleaned, num_suggestions=1)
+            suggestion = raw[0] if raw else cleaned
+            corrected_sentences.append(suggestion)
+
+    corrected = "".join(corrected_sentences)
+    return add_cors_headers(jsonify({"corrected": corrected}))
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
@@ -148,4 +175,4 @@ def recommend_wordnet():
     return add_cors_headers(response)
 
 if __name__ == '__main__':
-    app.run(debug=True, host="localhost", port=5001, ssl_context=('./SSL/cert.pem', './SSL/key.pem'))
+    app.run(debug=True, use_reloader=False, host="localhost", port=5001, ssl_context=('./SSL/cert.pem', './SSL/key.pem'))
