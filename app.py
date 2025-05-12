@@ -102,17 +102,21 @@ def feedback():
 
 @app.route('/word', methods=['POST'])
 def correct_word():
-    data = request.get_json()
-    if data is None or "word" not in data:
+    data = request.get_json(force=True)
+    if not data or "word" not in data:
         return jsonify({"error": "Invalid request, 'word' key missing"}), 400
 
     word = data["word"]
     suggestions = recommend_corrected_word(word, num_suggestions=5)
-    if not suggestions:
-        suggestions = generate_corrections(model, tokenizer, word, num_suggestions=5)
+
+    if len(suggestions) < 5:
+        model_suggestions = generate_corrections(model, tokenizer, word, num_suggestions=9)
+        extras = [s for s in model_suggestions if s not in suggestions]
+        needed = 5 - len(suggestions)
+        suggestions.extend(extras[:needed])
 
     return add_cors_headers(jsonify({
-        "original": word,
+        "original":    word,
         "suggestions": suggestions
     }))
 
