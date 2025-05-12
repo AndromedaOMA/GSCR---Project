@@ -5,4 +5,3 @@ gscr
 ronacc_model
 ronacc_test_predictions.csv
 feedback.db
-model.safetensors

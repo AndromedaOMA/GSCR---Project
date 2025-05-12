@@ -44,10 +44,10 @@ def add_cors_headers(response):
     Ensure every response includes the correct CORS headers.
     This fixes the issue where CORS only worked for OPTIONS but failed for POST.
     """
-    origin = request.headers.get("Origin")  # ✅ Get the request's origin
+    origin = request.headers.get("Origin")
 
     if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin  # ✅ Allow dynamic origins
+        response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Access-Control-Allow-Credentials"] = "true"
     
     response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
@@ -63,23 +63,45 @@ def preflight():
     response = jsonify({"message": "CORS preflight successful"})
     return add_cors_headers(response)
 
+# @app.route('/correct', methods=['POST'])
+# def correct_text():
+#     data = request.get_json()
+#     if data is None or "text" not in data:
+#         return jsonify({"error": "Invalid request, 'text' key missing"}), 400
+#
+#     text = data["text"]
+#     suggestions = generate_corrections(model, tokenizer, text, num_suggestions=5)
+#     corrected = suggestions[0] if suggestions else text
+#
+#     response = jsonify({
+#         "original": text,
+#         "corrected": corrected,
+#         "suggestions": suggestions
+#     })
+#     return add_cors_headers(response)
+
+# inside app.py
+
+from src.suggestion_ranker import rank_suggestions
+
 @app.route('/correct', methods=['POST'])
 def correct_text():
-    data = request.get_json()
+    data = request.get_json(force=True)
+    text = data.get("text")
     if data is None or "text" not in data:
         return jsonify({"error": "Invalid request, 'text' key missing"}), 400
 
-    text = data["text"]
-    # corrected_text = text.replace("teh", "the").replace("recieve", "receive")
-    suggestions = generate_corrections(model, tokenizer, text, num_suggestions=5)
-    corrected = suggestions[0] if suggestions else text
+    raw_suggestions = generate_corrections(model, tokenizer, text, num_suggestions=5)
+    ranked = rank_suggestions(original=text, suggestions=raw_suggestions, metric="bleu")
+    suggestions = [s for s, _ in ranked]
+    corrected   = suggestions[0] if suggestions else text
 
-    response = jsonify({
-        "original": text,
-        "corrected": corrected,
+    return add_cors_headers(jsonify({
+        "original":    text,
+        "corrected":   corrected,
         "suggestions": suggestions
-    })
-    return add_cors_headers(response)
+    }))
+
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
@@ -98,26 +120,6 @@ def feedback():
                    db_path="feedback.db")
 
     return add_cors_headers(jsonify({"status": "ok"}))
-
-@app.route('/suggest', methods=['POST'])
-def suggest():
-    """
-    Return the top-N corrections *with scores* so the client can
-    surface a dropdown of “best” → “good” → “okay”.
-    """
-    data = request.get_json(force=True)
-    text = data.get("text")
-    if not text:
-        return jsonify({"error": "Missing 'text' in payload"}), 400
-
-    raw = generate_corrections(model, tokenizer, text, num_suggestions=5)
-    ranked = rank_suggestions(original=text, suggestions=raw, metric="bleu")
-    out = [{"suggestion": s, "score": float(score)} for s, score in ranked]
-
-    return add_cors_headers(jsonify({
-        "original": text,
-        "ranked_suggestions": out
-    }))
 
 
 @app.route('/word', methods=['POST'])

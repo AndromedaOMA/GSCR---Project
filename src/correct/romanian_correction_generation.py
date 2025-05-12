@@ -40,25 +40,6 @@ def load_sentence_pairs(path: str) -> List[Dict[str, str]]:
     assert len(lines) % 2 == 0, f"Fișierul '{path}' trebuie să aibă un număr par de linii."
     return [{"input": lines[i+1], "target": lines[i]} for i in range(0, len(lines), 2)]
 
-# #Preprocessing(we will replace with Teprolin)
-# def preprocess(example):
-#     input_text = "grammar: " + example["input"]
-#     inputs = tokenizer(
-#         input_text,
-#         max_length=max_input_length,
-#         padding="max_length",
-#         truncation=True
-#     )
-#     with tokenizer.as_target_tokenizer():
-#         labels = tokenizer(
-#             example["target"],
-#             max_length=max_target_length,
-#             padding="max_length",
-#             truncation=True
-#         )
-#     inputs["labels"] = labels["input_ids"]
-#     return inputs
-
 def preprocess(example):
     return tokenizer(
         "grammar: " + example["input"],
@@ -136,20 +117,6 @@ trainer = Seq2SeqTrainer(
     tokenizer=tokenizer,
     compute_metrics=compute_metrics
 )
-
-#
-#
-# Uncomment to skip fine-tuning (create a filler directory "t5-grammar-finetuned")
-#
-#
-
-# os.makedirs(output_dir, exist_ok=True)
-# print(f"[INFO] Saving un-trained (random) model into {output_dir}…")
-# model.save_pretrained(output_dir)
-# tokenizer.save_pretrained(output_dir)
-# print(f"[INFO] Done. Exiting before any training.")
-# import sys
-# sys.exit(0)
 
 trainer.train()
 
