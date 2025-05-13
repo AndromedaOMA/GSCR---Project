@@ -1,0 +1,34 @@
+<!-- This HTML file is used to display the suggestions in a dialog box. -->
+<!-- The body of the HTML is commented out to avoid VS Code linting errors caused by Apps Script templating syntax (<? ?>). -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      button {
+        margin-top: 30px;
+        align-self: center;
+      }
+      .suggestion {
+        cursor: pointer;
+        margin: 10px 0;
+      }
+    </style>
+    <script>
+      function replaceWithSuggestion(suggestion,suggestions) {
+        google.script.run.withSuccessHandler(function() {
+          google.script.host.close();
+        }).replaceSelectedText(suggestion,suggestions);
+      }
+    </script>
+  </head>
+  <body>
+    <!-- <? for (var i = 0; i < suggestions.length; i++) { ?>
+      <div class="suggestion" onclick="replaceWithSuggestion('<?= suggestions[i] ?>',<?= JSON.stringify(suggestions) ?>)">
+        <b>Sugestie:</b> <?= suggestions[i] ?>
+      </div>
+    <? } ?> -->
+    <button onclick="google.script.host.close()">Închide</button>
+  </body>
+</html>

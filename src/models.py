@@ -2,21 +2,20 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 def load_model(model_path: str):
-    """
-    Loads tokenizer + model.
-    """
+
+    # Loads tokenizer + model.
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
     model.eval()
-    # dacă ai GPU:
+
+    # if you have a GPU:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     return model, tokenizer
 
 def generate_corrections(model, tokenizer, text: str, num_suggestions: int = 3):
-    """
-    Generate the top n suggestions for the given text.
-    """
+    
+    # Generate the top n suggestions for the given text.
     device = next(model.parameters()).device
     inputs = tokenizer.encode("grammar: " + text, return_tensors="pt").to(device)
     outputs = model.generate(

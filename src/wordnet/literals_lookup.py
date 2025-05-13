@@ -62,6 +62,7 @@ def get_hyponyms(word: str) -> list[str]:
 
 
 if __name__ == "__main__":
+    # Test example
     for w in ["mașină"]:
         print(f"\nWord: {w}")
         print(" Synonyms:   ", get_synonyms(w))

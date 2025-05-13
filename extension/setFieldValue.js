@@ -10,7 +10,7 @@ window.setFieldValue = (text, start = null, end = null) => {
                 + text
                 + orig.slice(end);
         }
-        // no indices → replace all
+        // no indices -> replace all
         return text;
     }
 

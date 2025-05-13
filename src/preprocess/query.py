@@ -8,19 +8,18 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 from src.preprocess.utils import generate_corrections
 from src.preprocess.HFWrapperULMFiT import HFWrapperULMFiT
 
-# TODO - FROM FINE-TUNED MODEL (now it has random weights each time)
 tokenizer = AutoTokenizer.from_pretrained("dumitrescustefan/bert-base-romanian-cased-v1")
 # model = ULMFiTClassifier("dumitrescustefan/bert-base-romanian-cased-v1").to(device)
 config = AutoConfig.from_pretrained("dumitrescustefan/bert-base-romanian-cased-v1", num_labels=2)
 model = HFWrapperULMFiT(config)
 
-# ✅ Light Romanian preprocessing (no Teprolin)
+# Light Romanian preprocessing (no Teprolin)
 def clean_text(text: str) -> str:
     text = text.strip()
     text = re.sub(r"\s+", " ", text)  # remove extra whitespace
     return text
 
-# ✅ Inference function
+# Inference function
 def predict_on_text(text: str, model, tokenizer, max_length: int = 128) -> str:
     model.eval()
 
@@ -45,7 +44,7 @@ def predict_on_text(text: str, model, tokenizer, max_length: int = 128) -> str:
         predicted_class = torch.argmax(logits, dim=1).item()
 
     # Map prediction to label
-    label_map = {0: "✅ Correct", 1: "❌ Incorrect"}
+    label_map = {0: "Correct", 1: "Incorrect"}
     return label_map[predicted_class],predicted_class
 
 # Example usage

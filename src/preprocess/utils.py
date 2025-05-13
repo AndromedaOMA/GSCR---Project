@@ -15,7 +15,7 @@ def compute_metrics(pred):
     }
 
 def generate_corrections(text, num_options=5):
-    """ Generează multiple opțiuni de corectare pentru un text dat """
+    # Generates multiple correction options for a given text
     tokenizer = AutoTokenizer.from_pretrained("BlackKakapo/t5-small-grammar-ro-root")
     model = AutoModelForSeq2SeqLM.from_pretrained("BlackKakapo/t5-small-grammar-ro-root")
 

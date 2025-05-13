@@ -18,9 +18,7 @@ from transformers import (
     BertConfig,
 )
 
-# ---------------------------------------------------------------------
 # 1.  Classifier head used during training (ULMFiT-style pooling)
-# ---------------------------------------------------------------------
 class ULMFiTClassifier(nn.Module):
     def __init__(
         self,
@@ -52,9 +50,7 @@ class ULMFiTClassifier(nn.Module):
         return logits
 
 
-# ---------------------------------------------------------------------
 # 2.  Wrapper so the model can be saved / loaded with Hugging Face
-# ---------------------------------------------------------------------
 class HFWrapperULMFiT(PreTrainedModel):
     config_class = BertConfig
 
@@ -71,9 +67,7 @@ class HFWrapperULMFiT(PreTrainedModel):
         return {"loss": loss, "logits": logits}
 
 
-# ---------------------------------------------------------------------
 # 3.  Helpers
-# ---------------------------------------------------------------------
 def clean_text(text: str) -> str:
     """Remove leading/trailing spaces and collapse excessive whitespace."""
     return re.sub(r"\s+", " ", text.strip())
@@ -97,12 +91,10 @@ def predict_on_text(
 
     logits = model(**encoding)["logits"]
     pred_idx = torch.argmax(logits, dim=1).item()
-    label_map = {0: "✅ Correct", 1: "❌ Incorrect"}
+    label_map = {0: "Correct", 1: "Incorrect"}
     return label_map[pred_idx], pred_idx
 
-# ---------------------------------------------------------------------
 # 4.  Main
-# ---------------------------------------------------------------------
 def main():
     # Build a **relative** path so HF never mistakes it for a Hub repo
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -125,7 +117,7 @@ def main():
 
     for s in examples:
         verdict, _ = predict_on_text(s, model, tokenizer)
-        print(f"“{s}” → {verdict}")
+        print(f"“{s}” -> {verdict}")
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ class RoNACCDatasetPaired(torch.utils.data.Dataset):
         self.samples = []
         for i in range(0, len(lines), 2):
             self.samples.append((lines[i], 0))      # Correct
-            self.samples.append((lines[i + 1], 1))  # incorrect
+            self.samples.append((lines[i + 1], 1))  # Incorrect
         self.tokenizer = tokenizer
         self.max_length = max_length
 

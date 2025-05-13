@@ -17,7 +17,7 @@ from transformers import (
     set_seed,
 )
 
-# ─────────────── CONFIG ───────────────────────────────────────────────────────
+# CONFIG 
 set_seed(42)
 
 MODEL_NAME                  = "BlackKakapo/t5-small-grammar-ro-root"
@@ -33,7 +33,7 @@ LEARNING_RATE               = 5e-5
 EVAL_STEPS                  = 500
 SAVE_STEPS                  = 500
 LOGGING_STEPS               = 100
-# ────────────────────────────────────────────────────────────────────────────────
+
 
 def main():
     # 1) Load tokenizer & model
@@ -124,7 +124,7 @@ def main():
     # 9) Train & save
     trainer.train()
     trainer.save_model(OUTPUT_DIR)
-    print(f"✅ Word‐level model fine-tuned and saved to {OUTPUT_DIR}")
+    print(f"Word‐level model fine-tuned and saved to {OUTPUT_DIR}")
 
 if __name__ == "__main__":
     main()

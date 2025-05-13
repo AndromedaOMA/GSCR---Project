@@ -12,6 +12,6 @@ def rank_suggestions(original, suggestions, metric="bleu"):
 
         scored.append((cand, score))
 
-    # sort highest→lowest
+    # sort highest -> lowest
     scored.sort(key=lambda pair: pair[1], reverse=True)
     return scored

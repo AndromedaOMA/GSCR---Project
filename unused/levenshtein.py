@@ -74,8 +74,7 @@ def load_vocab(filename='src/dict_matching/testing_corpus.txt'):
 
 
 # Checks words in passed vocabulary against the word to be tested
-# If any word is closer to the chosen word than the chosen accuracy
-# Then it is passed in the returned list
+# Any word that is closer to the chosen word than the chosen accuracy is passed in the returned list
 def pattern_match_vocab(vocabulary, chosen_word, chosen_accuracy=3):
     potential_matches = []
     for word in vocabulary:
@@ -95,8 +94,7 @@ def pattern_match_vocab(vocabulary, chosen_word, chosen_accuracy=3):
 
 
 # Example of usage with arguments passed at cli
-# For testing mostly as obviously this will be called inside another program
-# NOT CONFIGURED FOR INTEGRATION YET
+# For testing this will be called inside another program
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         chosen_word = sys.argv[1]

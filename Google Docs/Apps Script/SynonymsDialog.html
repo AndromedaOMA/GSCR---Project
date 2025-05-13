@@ -1,0 +1,37 @@
+<!-- This HTML file is used to display the synonyms that have been suggested in a dialog box. -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      button {
+        margin-top: 30px;
+        align-self: center;
+      }
+      .suggestion {
+        cursor: pointer;
+        margin: 10px 0;
+      }
+    </style>
+    <script>
+      function replaceWithSuggestion(suggestion) {
+        google.script.run.withSuccessHandler(function() {
+          google.script.host.close();
+        }).replaceSelectedTextWithSynonym(suggestion);
+      }
+    </script>
+  </head>
+ <body>
+  <? if (suggestions.length === 0) { ?>
+    <div>Nu există sugestii de sinonime</div>
+  <? } else { ?>
+    <? for (var i = 0; i < suggestions.length; i++) { ?>
+      <div class="suggestion" onclick="replaceWithSuggestion('<?= suggestions[i] ?>')">
+        <b>Sugestie:</b> <?= suggestions[i] ?>
+      </div>
+    <? } ?>
+  <? } ?>
+  <button onclick="google.script.host.close()">Închide</button>
+</body>
+
+</html>

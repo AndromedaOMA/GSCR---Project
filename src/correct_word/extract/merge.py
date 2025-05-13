@@ -1,7 +1,7 @@
 import argparse
 
 def load_words(path):
-    """Read non-empty, stripped lines from a file into a set."""
+    # Read non-empty, stripped lines from a file into a set.
     words = set()
     with open(path, encoding="utf-8", errors="ignore") as f:
         for line in f:

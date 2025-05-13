@@ -37,7 +37,7 @@ model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 def load_sentence_pairs(path: str) -> List[Dict[str, str]]:
     with open(path, "r", encoding="utf-8") as f:
         lines = [line.strip() for line in f if line.strip()]
-    assert len(lines) % 2 == 0, f"Fișierul '{path}' trebuie să aibă un număr par de linii."
+    assert len(lines) % 2 == 0, f"Fisierul '{path}' trebuie sa aiba un numar par de linii."
     return [{"input": lines[i+1], "target": lines[i]} for i in range(0, len(lines), 2)]
 
 def preprocess(example):
@@ -124,11 +124,11 @@ trainer.train()
 model.save_pretrained(output_dir)
 tokenizer.save_pretrained(output_dir)
 
-print("✅ Antrenament finalizat. Model salvat în:", output_dir)
+print("Antrenament finalizat. Model salvat in:", output_dir)
 
 # Eval model
 results = trainer.evaluate(test_dataset)
-print("🧪 Rezultate evaluare test:", results)
+print("Rezultate evaluare test:", results)
 
 # Module with caching and ranking of sugestions
 class RomanianGrammarCorrector:

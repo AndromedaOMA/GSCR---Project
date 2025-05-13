@@ -4,8 +4,7 @@ import numpy as np
 
 
 def score_clarity(options):
-    """ Atribuie scor fiecărei opțiuni în funcție de claritate """
-    # Încarcă modelul SentenceTransformer pentru claritate
+    # each option will have a score based on its clarity
     clarity_model = SentenceTransformer("BlackKakapo/cupidon-mini-ro")
 
     reference_sentence = "Aceasta este o propoziție clară și corectă din punct de vedere gramatical."
@@ -21,27 +20,27 @@ def score_clarity(options):
 
 
 def select_best_option(options, scores):
-    """ Selectează cea mai clară variantă bazată pe scoruri """
+    # selecting the option with the highest clarity score
     best_index = scores.index(max(scores))
     return options[best_index]
 
 
 if __name__ == "__main__":
-    # Testăm cu un text greșit gramatical
+    # text example with errors 
     text_with_errors = "As dori ca sa corecteze toate greșelile."
 
-    # 1️⃣ Generăm opțiuni multiple
+    # generation of correction options
     generated_options = generate_corrections(text_with_errors)
     print("Opțiuni generate:")
     for i, option in enumerate(generated_options):
         print(f"{i+1}. {option}")
 
-    # 2️⃣ Calculăm scorurile de claritate
+    # clarity scores
     clarity_scores = score_clarity(generated_options)
     print("\nScoruri de claritate:")
     for i, (option, score) in enumerate(zip(generated_options, clarity_scores)):
         print(f"{i+1}. {option} - Scor: {score:.4f}")
 
-    # 3️⃣ Selectăm varianta optimă
+    # chosing the best option
     best_option = select_best_option(generated_options, clarity_scores)
-    print("\n✅ Varianta finală selectată:", best_option)
+    print("\n Varianta finala selectata:", best_option)

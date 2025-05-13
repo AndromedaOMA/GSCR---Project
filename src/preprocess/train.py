@@ -40,12 +40,8 @@ for batch in train_loader:
 config = AutoConfig.from_pretrained("dumitrescustefan/bert-base-romanian-cased-v1", num_labels=2)
 model = HFWrapperULMFiT(config)
 
-#
-#
-# TRAIN
-#
-#
 
+# TRAIN
 training_args = TrainingArguments(
     output_dir="./ronacc_model",
     eval_strategy="steps",
@@ -76,11 +72,8 @@ trainer = Trainer(
 
 trainer.train()
 
-#
-#
+
 # INFERENCE
-#
-#
 predictions = trainer.predict(test_dataset)
 print("Evaluation metrics on test set:", predictions.metrics)
 

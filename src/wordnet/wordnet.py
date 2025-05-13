@@ -106,6 +106,7 @@ def get_related_forms(word_form: str) -> str:
     return data.get("synonyms", [])[:3] + data.get("hypernyms", [])[:1] + data.get("hyponyms", [])[:1]
 
 if __name__ == "__main__":
+    # Test example 
     for w in ["mașină", "mașina", "mașini", "mașinii", "mergând"]:
         res = related_forms(w)
         print(f"\n── Related for “{w}” (lemma={res['lemma']}):")
