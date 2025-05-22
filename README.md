@@ -127,6 +127,14 @@ Phase 6 (Deployment): Integration with text editors and final system evaluation.
     2. Enable Developer mode
     3. Load unpacked → select the extension/ folder
 
+    ### 6. Extension in Google Docs: Google Apps Script and ngrok Configuration for Backend APIs
+    1. Open Google Docs and create a new document. In the menu bar, click Extensions and then Apps Script. 
+    2. An editor will be opened in a new tab. In the Code.gs file, insert the code from the Code.gs file provided in the Github repository. Additionally, create the SuggestionsDialog.html and SynonymsDialog.html files, and copy-paste the content provided in those files in the Github repository.
+    3. Run the backend server that will receive the requests for processing text and offering suggestions.
+    4. Install ngrok, authenticate with the token provided in your ngrok user profile, and type ngrok http <server_port> (Replace <server_port> with the port your local server is running on).
+    5. Update the server url from Code.gs with the one provided by ngrok in the terminal ( something like: var urlDeBaza="https://d9ed-2a02-2f00-c307-1800-55f1-5e48-d5b1-3781.ngrok-free.app").
+    6. When you run the Apps Script for the first time, you will be prompted to grant the necessary permissions. Accept all required scopes. Then, go to Deployments -> Test deployments, set the project type to Editor Add-on, and select a Google Docs document to test the extension. Save and install the deployment.
+    7. Open the Google Docs file where the extension was installed. You will now see a new menu added by the extension. While testing, ensure that the ngrok terminal session is active—this is required for the Google Apps Script to reach your local backend. When a menu item is triggered, the backend will receive the request, process the text, and return a response. This response will be used to either modify the document or display suggestions in a custom dialog box.
 
 #Model Tensors
 *.safetensors files (T5 corrector + ULMFiT detector) are not part of the repo.
