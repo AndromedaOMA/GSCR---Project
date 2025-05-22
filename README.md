@@ -69,10 +69,6 @@ Phase 3 (Error Detection Module Development): Fine-tuning RoBERT and integrating
 Phase 4 (Automatic Correction Module): Implementing and fine-tuning MarianMT for generating and ranking correction suggestions. </br>
 Phase 5 (Continuous Optimization and Testing): User feedback integration, active learning framework implementation, iterative optimization. </br>
 Phase 6 (Deployment): Integration with text editors and final system evaluation. </br>
-
-<h3 align="left">How does it work?</h3>
-
-  Soon
   
 <h3 align="left">The logic behind the code:</h3>
 
@@ -84,7 +80,71 @@ Phase 6 (Deployment): Integration with text editors and final system evaluation.
 
 <h3 id="installation" align="left">Installation:</h3>
 
-  Soon
+  # GSCR — Grammar & Stylistic Correction for Romanian
+    _A Chrome Extension + Python NLP backend_
+    
+    ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+    [![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](#license)
+    
+    GSCR brings real-time Romanian grammar and style checking to any web page.  
+    It combines a lightweight Chrome extension with a Flask-based NLP service
+    powered by **ULMFiT** (error detection) and a fine-tuned **T5 Transformer**
+    (error correction).
+    
+    ---
+    
+    ## Features
+    - Two-stage GEC pipeline → fast + accurate
+    - On-device privacy: text never leaves your machine
+    - Optional GPU acceleration (`utils/cuda.py`)
+    - Dockerised **Teprolin** for tokenisation & morpho-syntactic tags
+    - SQLite logging of accepted fixes for active learning
+    
+    ---
+    
+    ## Quick Start
+    
+    ### 1· Clone + Install Python deps
+    ```bash
+    git clone https://github.com/AndromedaOMA/GSCR---Project.git
+    cd GSCR---Project
+    python -m venv .venv && source .venv/bin/activate
+    pip install -r requirements.txt
+    python -m spacy download ro_core_news_sm
+
+    ### 2· (optional) Enable CUDA
+    See utils/cuda.py for manual install steps matching your GPU/CUDA version.
+
+    ### 3. Run Teprolin Docker
+    docker pull raduion/teprolin:1.1
+    docker run -d -p 5000:5000 --name teprolin raduion/teprolin:1.1
+
+    ### 4. Start backend
+    python app.py
+
+    ### 5. Load Chrome Extension
+    1. Go to chrome://extensions/
+    2. Enable Developer mode
+    3. Load unpacked → select the extension/ folder
+
+
+#Model Tensors
+*.safetensors files (T5 corrector + ULMFiT detector) are not part of the repo.
+Request them from the maintainers, place under models/, and restart app.py.
+
+#Inspect the Database
+
+Download DB Browser for SQLite → https://sqlitebrowser.org/dl/
+Open gscr.db to explore logged feedback.
+
+#Contributing
+Fork → git checkout -b feat/awesome
+
+Run pre-commit install (lint hooks)
+
+PR against main with a clear description.
+
+
 
 * [Table Of Content](#table-of-content)
 
