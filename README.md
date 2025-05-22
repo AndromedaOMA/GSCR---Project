@@ -112,6 +112,10 @@ Phase 6 (Deployment): Integration with text editors and final system evaluation.
     pip install -r requirements.txt
     python -m spacy download ro_core_news_sm
 
+    ### Install safetensors:
+    1. Download the .zip files from here: https://we.tl/t-AxtK3ket8f (link available for 3 days - contact one of the members if expired)
+    2. Unzip the files into the parent folder of the project
+
     ### 2· (optional) Enable CUDA
     See utils/cuda.py for manual install steps matching your GPU/CUDA version.
 
