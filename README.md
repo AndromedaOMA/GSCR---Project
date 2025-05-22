@@ -122,10 +122,16 @@ Phase 6 (Deployment): Integration with text editors and final system evaluation.
     ### 4. Start backend
     python app.py
 
-    ### 5. Load Chrome Extension
-    1. Go to chrome://extensions/
-    2. Enable Developer mode
+    ### 5. Load Extension (example for Google Chrome)
+    1. Go to `chrome://extensions/`
+    2. Enable **Developer mode**
     3. Load unpacked → select the extension/ folder
+    4. After loading, open **DevTools**:
+    5. Right-click on the page and choose **Inspect** or press `Ctrl+Shift+I`.
+    6. In the **Console**, you may see the error: ```Not allowed to load local resource```
+    7. In the browser address bar, go to: `https://localhost:<PORT>`
+    8. On the **Your connection is not private** warning page, click **Advanced**, then **Proceed to localhost (unsafe)**.
+    9. Reload the page; the extension should now function correctly.
 
     ### 6. Extension in Google Docs: Google Apps Script and ngrok Configuration for Backend APIs
     1. Open Google Docs and create a new document. In the menu bar, click Extensions and then Apps Script. 
