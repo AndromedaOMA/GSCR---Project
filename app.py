@@ -18,6 +18,7 @@ from src.models import load_model, generate_corrections
 from database.database import store_feedback, init_db
 from src.active_learning import run_active_learning
 from src.correct_word.levenshtein import recommend_corrected_word
+from src.models import generate_corrections_with_scores
 from src.suggestion_ranker import rank_suggestions
 from src.preprocess.teprolin_pipeline import teprolin_preprocess
 from src.detection.detect import HFWrapperULMFiT
@@ -85,8 +86,14 @@ def correct_text():
 
     teprolin_result = teprolin_preprocess(text)
     corrected_text = teprolin_result["teprolin-result"]["text"]
-    raw_suggestions = generate_corrections(model, tokenizer, corrected_text, num_suggestions=5)
-    ranked = rank_suggestions(original=text, suggestions=raw_suggestions, metric="bleu")
+    raw = generate_corrections_with_scores(model, tokenizer, corrected_text, num_suggestions=5)
+    ranked = rank_suggestions(
+        original=text,
+        suggestions=raw,
+        metric="conservative",
+        det_confidence=1.0,
+        lambda_edit=0.35,
+    )
     suggestions = [s for s, _ in ranked]
     corrected   = suggestions[0] if suggestions else corrected_text
 
@@ -109,14 +116,24 @@ def check_and_correct_text():
 
     for sent in sentences:
         result = clf_model(**clf_tokenizer(sent, return_tensors="pt", truncation=True, padding=True).to(device))
-        is_correct = (torch.argmax(result['logits'], dim=1).item() == 0)
+        logits = result["logits"][0]
+        probs = torch.softmax(logits, dim=-1)
+        prob_incorrect = probs[1].item()
+        is_correct = (torch.argmax(logits, dim=0).item() == 0)
         if is_correct:
             corrected_sentences.append(sent)
         else:
             teprolin_result = teprolin_preprocess(sent)
             cleaned = teprolin_result["teprolin-result"]["text"]
-            raw = generate_corrections(model, tokenizer, cleaned, num_suggestions=1)
-            suggestion = raw[0] if raw else cleaned
+            raw = generate_corrections_with_scores(model, tokenizer, cleaned, num_suggestions=5)
+            ranked = rank_suggestions(
+                original=sent,
+                suggestions=raw,
+                metric="conservative",
+                det_confidence=prob_incorrect,
+                lambda_edit=0.35,
+            )
+            suggestion = ranked[0][0] if ranked else cleaned
             corrected_sentences.append(suggestion)
 
     corrected = "".join(corrected_sentences)

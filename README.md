@@ -72,7 +72,7 @@ Phase 6 (Deployment): Integration with text editors and final system evaluation.
   
 <h3 align="left">The logic behind the code:</h3>
 
-  Soon
+  See detailed technical write-up in `docs/CIKM_framework_ro.md` (architecture, benchmark, reranker novelty, and paper-oriented evaluation protocol).
 
 * [Table Of Content](#table-of-content)
 
