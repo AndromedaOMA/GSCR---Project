@@ -6,22 +6,17 @@ import torch
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
-from transformers import (
-    AutoTokenizer,
-)
-
-from src.wordnet.wordnet import get_related_forms
-
 sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
 
 from src.models import load_model, generate_corrections
 from database.database import store_feedback, init_db
+from src.wordnet.wordnet import get_related_forms
 from src.active_learning import run_active_learning
 from src.correct_word.levenshtein import recommend_corrected_word
 from src.models import generate_corrections_with_scores
 from src.suggestion_ranker import rank_suggestions
 from src.preprocess.teprolin_pipeline import teprolin_preprocess
-from src.detection.detect import HFWrapperULMFiT
+from src.preprocess.detector_inference_loader import load_detector_for_inference
 
 
 DB_PATH = "feedback.db"
@@ -34,9 +29,7 @@ model, tokenizer = load_model(model_path)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 clf_model_path = os.path.join(pathlib.Path(__file__).parent, "src", "detection", "content", "trained_model_V2_2")
-clf_tokenizer = AutoTokenizer.from_pretrained(clf_model_path)
-clf_model = HFWrapperULMFiT.from_pretrained(str(clf_model_path)).to(device)
-clf_model.eval()
+clf_model, clf_tokenizer = load_detector_for_inference(clf_model_path, device)
 
 # Schedule the active learning process to run every 3 days
 scheduler = BackgroundScheduler()

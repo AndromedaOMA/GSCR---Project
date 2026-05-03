@@ -1,0 +1,157 @@
+{
+  "config": {
+    "model": "t5-grammar-finetuned",
+    "k": 5,
+    "lambda_edit": 0.35,
+    "device": "cuda",
+    "detector_path": "src/detection/content/trained_model_V2_2",
+    "detector_enabled": true,
+    "strategies": [
+      "t5_top1",
+      "bleu_ranker",
+      "conservative",
+      "conservative_no_detconf",
+      "conservative_no_edit"
+    ]
+  },
+  "results": {
+    "level1_in_distribution": {
+      "path": "GEC/test.txt",
+      "num_examples": 1519,
+      "metrics": {
+        "t5_top1": {
+          "exact_match": 0.3548387096774194,
+          "bleu": 83.66481603682296,
+          "chrf": 93.18412661588079,
+          "overcorrection_rate": 0.2857142857142857,
+          "unchanged_rate_on_correct": 0.7142857142857143,
+          "changed_rate": 0.7583936800526663
+        },
+        "bleu_ranker": {
+          "exact_match": 0.19091507570770244,
+          "bleu": 80.78886054918082,
+          "chrf": 92.34255223502046,
+          "overcorrection_rate": 0.14285714285714285,
+          "unchanged_rate_on_correct": 0.8571428571428572,
+          "changed_rate": 0.5279789335088875
+        },
+        "conservative": {
+          "exact_match": 0.32653061224489793,
+          "bleu": 83.27684056216881,
+          "chrf": 93.08827946305439,
+          "overcorrection_rate": 0.19047619047619047,
+          "unchanged_rate_on_correct": 0.8095238095238095,
+          "changed_rate": 0.7077024358130349
+        },
+        "conservative_no_detconf": {
+          "exact_match": 0.3337722185648453,
+          "bleu": 83.2325733954522,
+          "chrf": 93.02649530758538,
+          "overcorrection_rate": 0.23809523809523808,
+          "unchanged_rate_on_correct": 0.7619047619047619,
+          "changed_rate": 0.728110599078341
+        },
+        "conservative_no_edit": {
+          "exact_match": 0.347597103357472,
+          "bleu": 83.26551539910558,
+          "chrf": 92.97185987195721,
+          "overcorrection_rate": 0.23809523809523808,
+          "unchanged_rate_on_correct": 0.7619047619047619,
+          "changed_rate": 0.761026991441738
+        }
+      }
+    },
+    "level2_stress": {
+      "path": "GEC/dev.txt",
+      "num_examples": 1518,
+      "metrics": {
+        "t5_top1": {
+          "exact_match": 0.34189723320158105,
+          "bleu": 82.65787552227734,
+          "chrf": 92.73284234002939,
+          "overcorrection_rate": 0.47368421052631576,
+          "unchanged_rate_on_correct": 0.5263157894736843,
+          "changed_rate": 0.7621870882740448
+        },
+        "bleu_ranker": {
+          "exact_match": 0.18708827404479578,
+          "bleu": 79.53411588323952,
+          "chrf": 91.82238456333863,
+          "overcorrection_rate": 0.15789473684210525,
+          "unchanged_rate_on_correct": 0.8421052631578947,
+          "changed_rate": 0.5507246376811594
+        },
+        "conservative": {
+          "exact_match": 0.308300395256917,
+          "bleu": 82.17309788425892,
+          "chrf": 92.54068597966968,
+          "overcorrection_rate": 0.3157894736842105,
+          "unchanged_rate_on_correct": 0.6842105263157895,
+          "changed_rate": 0.7193675889328063
+        },
+        "conservative_no_detconf": {
+          "exact_match": 0.3142292490118577,
+          "bleu": 82.09814121322526,
+          "chrf": 92.46483265385322,
+          "overcorrection_rate": 0.47368421052631576,
+          "unchanged_rate_on_correct": 0.5263157894736843,
+          "changed_rate": 0.7476943346508564
+        },
+        "conservative_no_edit": {
+          "exact_match": 0.3254281949934124,
+          "bleu": 82.15385134472871,
+          "chrf": 92.48044014848705,
+          "overcorrection_rate": 0.47368421052631576,
+          "unchanged_rate_on_correct": 0.5263157894736843,
+          "changed_rate": 0.7733860342555995
+        }
+      }
+    },
+    "level3_synthetic": {
+      "path": "bench/level3_stress_from_gec.txt",
+      "num_examples": 500,
+      "metrics": {
+        "t5_top1": {
+          "exact_match": 0.372,
+          "bleu": 75.04107025370075,
+          "chrf": 90.55443144597989,
+          "overcorrection_rate": 0.13043478260869565,
+          "unchanged_rate_on_correct": 0.8695652173913043,
+          "changed_rate": 0.846
+        },
+        "bleu_ranker": {
+          "exact_match": 0.142,
+          "bleu": 65.73707173967172,
+          "chrf": 86.92966201079221,
+          "overcorrection_rate": 0.06521739130434782,
+          "unchanged_rate_on_correct": 0.9347826086956522,
+          "changed_rate": 0.68
+        },
+        "conservative": {
+          "exact_match": 0.344,
+          "bleu": 74.86718928006448,
+          "chrf": 90.48202043228385,
+          "overcorrection_rate": 0.10869565217391304,
+          "unchanged_rate_on_correct": 0.8913043478260869,
+          "changed_rate": 0.828
+        },
+        "conservative_no_detconf": {
+          "exact_match": 0.352,
+          "bleu": 75.21741452353457,
+          "chrf": 90.59307586072606,
+          "overcorrection_rate": 0.10869565217391304,
+          "unchanged_rate_on_correct": 0.8913043478260869,
+          "changed_rate": 0.834
+        },
+        "conservative_no_edit": {
+          "exact_match": 0.334,
+          "bleu": 75.114808671513,
+          "chrf": 90.49988680751433,
+          "overcorrection_rate": 0.21739130434782608,
+          "unchanged_rate_on_correct": 0.782608695652174,
+          "changed_rate": 0.856
+        }
+      }
+    }
+  }
+}

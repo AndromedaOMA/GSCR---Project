@@ -1,11 +1,30 @@
+from __future__ import annotations
+
+from typing import Optional
+
 import torch
 import torch.nn as nn
 from transformers import AutoModel
 
 class ULMFiTClassifier(nn.Module):
-    def __init__(self, model_name: str = "dumitrescustefan/bert-base-romanian-cased-v1", dropout: float = 0.15, num_labels: int = 2):
+    def __init__(
+        self,
+        model_name: Optional[str] = None,
+        dropout: float = 0.15,
+        num_labels: int = 2,
+        *,
+        encoder: Optional[nn.Module] = None,
+    ):
         super().__init__()
-        self.bert = AutoModel.from_pretrained(model_name)
+        if encoder is not None:
+            self.bert = encoder
+        else:
+            if model_name is None:
+                model_name = "dumitrescustefan/bert-base-romanian-cased-v1"
+            self.bert = AutoModel.from_pretrained(
+                model_name,
+                low_cpu_mem_usage=False,
+            )
         hidden_size = self.bert.config.hidden_size
 
         # Classifier Head (ULMFiT-style)

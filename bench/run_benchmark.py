@@ -7,15 +7,14 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import torch
 from sacrebleu import corpus_bleu, corpus_chrf
-from transformers import AutoTokenizer
 
 # Allow running as: python bench/run_benchmark.py
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.detection.detect import HFWrapperULMFiT
 from src.models import generate_corrections, generate_corrections_with_scores, load_model
+from src.preprocess.detector_inference_loader import load_detector_for_inference
 from src.suggestion_ranker import rank_suggestions
 
 
@@ -61,10 +60,7 @@ class DetectorConfidence:
             )
 
         model_ref = str(existing)
-
-        self.tokenizer = AutoTokenizer.from_pretrained(model_ref)
-        self.model = HFWrapperULMFiT.from_pretrained(model_ref).to(device)
-        self.model.eval()
+        self.model, self.tokenizer = load_detector_for_inference(model_ref, device)
         self.device = device
 
     @torch.inference_mode()
@@ -194,8 +190,12 @@ def main():
     ap.add_argument("--device", default=None, help="cuda / cpu")
     ap.add_argument("--detector-path", default=None, help="Optional detector path (HFWrapperULMFiT checkpoint)")
     ap.add_argument("--level1", default="GEC/test.txt", help="Level 1 dataset path")
-    ap.add_argument("--level2", default="bench/level2_stress.txt", help="Level 2 dataset path")
-    ap.add_argument("--level3", default="bench/level3_authentic.txt", help="Level 3 dataset path")
+    ap.add_argument("--level2", default="GEC/dev.txt", help="Level 2 dataset path")
+    ap.add_argument(
+        "--level3",
+        default="bench/level3_stress_from_gec.txt",
+        help="Level 3 dataset path",
+    )
     ap.add_argument(
         "--strategies",
         nargs="+",
@@ -217,6 +217,7 @@ def main():
     if args.detector_path:
         try:
             detector = DetectorConfidence(args.detector_path, device=device)
+            print("[INFO] Detector loaded; reranking will use per-sentence detector confidence.")
         except Exception as exc:
             print(f"[WARN] Detector disabled: {exc}")
             print("[WARN] Continuing with det_confidence=1.0 for all samples.")
@@ -227,6 +228,7 @@ def main():
         "level3_authentic": args.level3,
     }
 
+    detector_enabled = detector is not None
     report = {
         "config": {
             "model": args.model,
@@ -234,6 +236,7 @@ def main():
             "lambda_edit": args.lambda_edit,
             "device": str(device),
             "detector_path": args.detector_path,
+            "detector_enabled": detector_enabled,
             "strategies": args.strategies,
         },
         "results": {},

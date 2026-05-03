@@ -1,76 +1,41 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Romanian grammatical-correctness detector
-Loads the fine-tuned HFWrapperULMFiT model saved with
-`model.save_pretrained(<output_dir>)` and performs inference.
+Romanian grammatical-correctness detector inference utilities.
+
+Checkpoint loading avoids redundant Hub pulls (see preprocess.detector_inference_loader).
 """
 
 import os
 import re
+from typing import Tuple
+
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from transformers import (
-    AutoTokenizer,
-    AutoModel,
-    PreTrainedModel,
-    BertConfig,
-)
+from transformers import AutoTokenizer, PreTrainedModel
 
-# 1.  Classifier head used during training (ULMFiT-style pooling)
-class ULMFiTClassifier(nn.Module):
-    def __init__(
-        self,
-        model_name: str = "dumitrescustefan/bert-base-romanian-cased-v1",
-        dropout: float = 0.15,
-        num_labels: int = 2,
-    ):
-        super().__init__()
-        self.bert = AutoModel.from_pretrained(model_name)
-        hidden_size = self.bert.config.hidden_size
+from src.preprocess.detector_inference_loader import load_detector_for_inference
+from src.preprocess.HFWrapperULMFiT import HFWrapperULMFiT
 
-        # Concatenate CLS, mean-pool and max-pool representations
-        self.pooler = lambda x: torch.cat(
-            (x[:, 0], torch.mean(x, dim=1), torch.max(x, dim=1).values), dim=1
-        )
-
-        self.fc = nn.Sequential(
-            nn.Linear(hidden_size * 3, hidden_size),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_size, num_labels),
-        )
-
-    def forward(self, input_ids, attention_mask):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        sequence_output = outputs.last_hidden_state
-        pooled = self.pooler(sequence_output)
-        logits = self.fc(pooled)
-        return logits
+__all__ = [
+    "HFWrapperULMFiT",
+    "load_detector_for_inference",
+    "clean_text",
+    "predict_on_text",
+]
 
 
-# 2.  Wrapper so the model can be saved / loaded with Hugging Face
-class HFWrapperULMFiT(PreTrainedModel):
-    config_class = BertConfig
-
-    def __init__(self, config: BertConfig):
-        super().__init__(config)
-        # config._name_or_path points at the original base model
-        self.ulmfit_model = ULMFiTClassifier(model_name=config._name_or_path)
-        self.post_init()
-
-    def forward(self, input_ids=None, attention_mask=None, labels=None, **kwargs):
-        # **kwargs will catch token_type_ids, position_ids, etc.
-        logits = self.ulmfit_model(input_ids=input_ids, attention_mask=attention_mask)
-        loss = F.cross_entropy(logits, labels) if labels is not None else None
-        return {"loss": loss, "logits": logits}
-
-
-# 3.  Helpers
 def clean_text(text: str) -> str:
     """Remove leading/trailing spaces and collapse excessive whitespace."""
     return re.sub(r"\s+", " ", text.strip())
+
+
+def load_detector(
+    model_path: str, device: torch.device | None = None
+) -> Tuple[HFWrapperULMFiT, AutoTokenizer]:
+    """Load tokenizer + classifier from a local Trainer export directory."""
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return load_detector_for_inference(model_path, device)
 
 
 @torch.inference_mode()
@@ -94,25 +59,18 @@ def predict_on_text(
     label_map = {0: "Correct", 1: "Incorrect"}
     return label_map[pred_idx], pred_idx
 
-# 4.  Main
+
 def main():
-    # Build a **relative** path so HF never mistakes it for a Hub repo
     script_dir = os.path.dirname(os.path.abspath(__file__))
     local_model_path = os.path.join(script_dir, "content", "trained_model_V2_2")
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model, tokenizer = load_detector_for_inference(local_model_path, device)
 
-    # Import your custom class before loading the checkpoint
-    tokenizer = AutoTokenizer.from_pretrained(local_model_path)
-    model = HFWrapperULMFiT.from_pretrained(local_model_path).to(device)
-    model.eval()
-
-    # Demo sentences
     examples = [
         "El merge la școală în fiecare zi.",
         "Mam mai gândit că poate voia să țepuiască pe cineva.",
         "Ea este femeia pe care am văzut-o.",
-        "La sfarsit de an a mers acolo."
+        "La sfarsit de an a mers acolo.",
     ]
 
     for s in examples:

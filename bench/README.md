@@ -1,4 +1,4 @@
-## GSCR internal benchmark (draft)
+## GSCR internal benchmark (GEC-only)
 
 ### Data format
 All datasets follow the repo convention used in `GEC/train.txt`, `dev.txt`, `test.txt`:
@@ -7,22 +7,32 @@ All datasets follow the repo convention used in `GEC/train.txt`, `dev.txt`, `tes
 - Line 2: **input** (noisy / incorrect sentence)
 - Repeats (even number of non-empty lines)
 
-### Level 1 — In-distribution
-Use the existing `GEC/test.txt`.
+### GEC-only split protocol (no external/manual data)
 
-### Level 2 — Stress (diacritics + agreement)
-Generate a stress set from gold targets:
+We keep everything strictly inside `./GEC` and define benchmark levels as follows:
+
+- **Training set**: `GEC/train.txt`
+- **Validation set**: `GEC/dev.txt`
+- **Benchmark Level 1 (in-distribution)**: `GEC/test.txt`
+- **Benchmark Level 2 (cross-split robustness)**: `GEC/dev.txt`
+- **Benchmark Level 3 (stress from existing GEC data)**: generated from `GEC/test.txt` via controlled perturbations
+
+This removes the dependency on `level3_authentic.txt` and keeps evaluation fully reproducible with current repository data.
+
+### Level 3 — Stress (from GEC only)
+Generate a stress set from existing GEC targets:
 
 ```bash
-python bench/build_level2_stress.py --in GEC/test.txt --out bench/level2_stress.txt --max 500 --seed 42
+python bench/build_level2_stress.py --in GEC/test.txt --out bench/level3_stress_from_gec.txt --max 500 --seed 42
 ```
 
-### Evaluation (Level 1/2)
+### Evaluation (Level 1/2/3)
 Run the conservative reranker evaluation:
 
 ```bash
 python bench/eval_gec.py --model t5-grammar-finetuned --data GEC/test.txt --k 5 --lambda-edit 0.35
-python bench/eval_gec.py --model t5-grammar-finetuned --data bench/level2_stress.txt --k 5 --lambda-edit 0.35
+python bench/eval_gec.py --model t5-grammar-finetuned --data GEC/dev.txt --k 5 --lambda-edit 0.35
+python bench/eval_gec.py --model t5-grammar-finetuned --data bench/level3_stress_from_gec.txt --k 5 --lambda-edit 0.35
 ```
 
 Reported metrics:
@@ -40,8 +50,8 @@ Single command to produce a JSON report with all strategies:
 python bench/run_benchmark.py \
   --model t5-grammar-finetuned \
   --level1 GEC/test.txt \
-  --level2 bench/level2_stress.txt \
-  --level3 bench/level3_authentic.txt \
+  --level2 GEC/dev.txt \
+  --level3 bench/level3_stress_from_gec.txt \
   --detector-path src/detection/content/trained_model_V2_2 \
   --k 5 \
   --lambda-edit 0.35 \
@@ -55,7 +65,7 @@ Default strategies included in the report:
 - `conservative_no_detconf` (ablation)
 - `conservative_no_edit` (ablation)
 
-If `level3_authentic.txt` is missing, the runner still works and marks it as missing.
+All three levels are generated/loaded from existing repository data (`./GEC` + derived stress set).
 
 ### Render tables for paper
 Convert `bench/results.json` into Markdown and LaTeX tables:
@@ -68,10 +78,8 @@ Generated files:
 - `bench/tables.md` (quick inspection / docs)
 - `bench/tables.tex` (paper-ready LaTeX tables)
 
-### Level 3 — Authentic gold (manual)
-Recommended structure for `bench/level3_authentic.txt`:
-
-- 250 sentences from real sources (Reddit/Facebook/news/student texts)
-- at least 2 annotators per sentence
-- keep adjudicated target as the final line-1 target, and raw noisy as line-2 input
+### Notes for scientific reporting
+- This protocol is fully **GEC-only** (no external/manual dataset).
+- In the paper, describe Level 3 as **synthetic stress**, not authentic real-world data.
+- Keep `GEC/test.txt` as final in-distribution benchmark and avoid tuning on it.
 

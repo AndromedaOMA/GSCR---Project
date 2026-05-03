@@ -70,20 +70,21 @@ Această integrare creează o legătură directă între detectare și corectare
 
 ---
 
-## 3) Benchmark intern pentru lucrare (GSCR-Benchmark-RO)
+## 3) Benchmark intern pentru lucrare (GSCR-Benchmark-RO, GEC-only)
 
 ### Level 1: In-distribution
 - dataset: `GEC/test.txt`
 - scop: performanță pe distribuția cunoscută.
 
-### Level 2: Stress Test
-- generator: `bench/build_level2_stress.py`
-- ieșire: `bench/level2_stress.txt`
-- perturbări: eliminare diacritice + confuzii agreement-like.
+### Level 2: Cross-split robustness
+- dataset: `GEC/dev.txt`
+- scop: verificare robustețe pe split validare, fără date externe.
 
-### Level 3: Authentic Gold
-- fișier așteptat: `bench/level3_authentic.txt`
-- 250 propoziții reale, 2 annotatori, adjudicare finală.
+### Level 3: Stress Test (din GEC)
+- generator: `bench/build_level2_stress.py`
+- intrare: `GEC/test.txt`
+- ieșire: `bench/level3_stress_from_gec.txt`
+- perturbări: eliminare diacritice + confuzii agreement-like.
 
 ### Evaluare automată
 - script: `bench/run_benchmark.py`
@@ -122,7 +123,7 @@ Interpretare recomandată:
 ## 5) Comentarea framework-ului în articol (secțiuni recomandate)
 
 ### Introduction
-- problema: GEC robust pentru română pe date autentice;
+- problema: GEC robust pentru română pe date limitate, interne;
 - limitare curentă: supra-corectare la sisteme standard.
 
 ### Method
@@ -132,7 +133,7 @@ Interpretare recomandată:
 
 ### Benchmark & Experimental Protocol
 - L1/L2/L3 cu motivație clară;
-- annotation protocol pentru L3 (inclusiv agreement).
+- L3 ca set de stres sintetic derivat din `GEC/test.txt`.
 
 ### Results
 - tabelele generate din `bench/tables.tex`;
@@ -143,8 +144,8 @@ Interpretare recomandată:
 - exemple de over-correction evitate.
 
 ### Limitations
-- acoperire domenii pe L3,
-- dependență de calitatea annotation.
+- lipsă benchmark autentic extern (L3 este sintetic),
+- posibil gap față de distribuția de erori din producție.
 
 ---
 
@@ -160,16 +161,16 @@ După acest pas, checkpoint-ul detectorului devine compatibil direct cu:
 - `app.py` (endpoint `/check`)
 - `bench/run_benchmark.py` (opțiunea `--detector-path`)
 
-1) Generează Level 2:
+1) Generează Level 3 (stress din GEC):
 
 ```bash
-python bench/build_level2_stress.py --in GEC/test.txt --out bench/level2_stress.txt --max 500 --seed 42
+python bench/build_level2_stress.py --in GEC/test.txt --out bench/level3_stress_from_gec.txt --max 500 --seed 42
 ```
 
 2) Rulează benchmark complet:
 
 ```bash
-python bench/run_benchmark.py --model t5-grammar-finetuned --level1 GEC/test.txt --level2 bench/level2_stress.txt --level3 bench/level3_authentic.txt --detector-path src/detection/content/trained_model_V2_2 --k 5 --lambda-edit 0.35 --out bench/results.json
+python bench/run_benchmark.py --model t5-grammar-finetuned --level1 GEC/test.txt --level2 GEC/dev.txt --level3 bench/level3_stress_from_gec.txt --detector-path src/detection/content/trained_model_V2_2 --k 5 --lambda-edit 0.35 --out bench/results.json
 ```
 
 3) Generează tabelele pentru paper:
@@ -186,6 +187,8 @@ Pentru argument credibil de Full Paper:
 - câștig consistent pe L3 la `overcorrection_rate`,
 - menținere performanță lexicală (`BLEU`, `chrF`) aproape de baseline,
 - ablații care demonstrează că ambele componente (confidence + edit penalty) contribuie.
+
+Notă metodologică: în această configurație, L3 este sintetic (nu autentic manual), deci concluziile trebuie raportate ca validare internă pe `./GEC`.
 
 Cu această structură, proiectul nu mai este doar „pipeline funcțional”, ci devine o contribuție metodologică + experimentală clară.
 

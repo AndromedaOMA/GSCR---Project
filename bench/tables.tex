@@ -1,0 +1,52 @@
+% Auto-generated from bench/results.json
+
+\begin{table}[t]
+\centering
+\caption{Benchmark results for level1\_in\_distribution}
+\small
+\begin{tabular}{lrrrrrr}
+\hline
+Strategy & ExactMatch & BLEU & chrF & OverCorr & Unchanged@Correct & ChangedRate \\
+\hline
+t5\_top1 & \textbf{0.3548} & \textbf{83.6648} & \textbf{93.1841} & \textbf{0.2857} & 0.7143 & 0.7584 \\
+bleu\_ranker & 0.1909 & 80.7889 & 92.3426 & 0.1429 & \textbf{0.8571} & 0.5280 \\
+conservative & 0.3265 & 83.2768 & 93.0883 & 0.1905 & 0.8095 & 0.7077 \\
+conservative\_no\_detconf & 0.3338 & 83.2326 & 93.0265 & 0.2381 & 0.7619 & 0.7281 \\
+conservative\_no\_edit & 0.3476 & 83.2655 & 92.9719 & 0.2381 & 0.7619 & \textbf{0.7610} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Benchmark results for level2\_stress}
+\small
+\begin{tabular}{lrrrrrr}
+\hline
+Strategy & ExactMatch & BLEU & chrF & OverCorr & Unchanged@Correct & ChangedRate \\
+\hline
+t5\_top1 & \textbf{0.3419} & \textbf{82.6579} & \textbf{92.7328} & \textbf{0.4737} & 0.5263 & 0.7622 \\
+bleu\_ranker & 0.1871 & 79.5341 & 91.8224 & 0.1579 & \textbf{0.8421} & 0.5507 \\
+conservative & 0.3083 & 82.1731 & 92.5407 & 0.3158 & 0.6842 & 0.7194 \\
+conservative\_no\_detconf & 0.3142 & 82.0981 & 92.4648 & \textbf{0.4737} & 0.5263 & 0.7477 \\
+conservative\_no\_edit & 0.3254 & 82.1539 & 92.4804 & \textbf{0.4737} & 0.5263 & \textbf{0.7734} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Benchmark results for level3\_synthetic}
+\small
+\begin{tabular}{lrrrrrr}
+\hline
+Strategy & ExactMatch & BLEU & chrF & OverCorr & Unchanged@Correct & ChangedRate \\
+\hline
+t5\_top1 & \textbf{0.3720} & 75.0411 & 90.5544 & 0.1304 & 0.8696 & 0.8460 \\
+bleu\_ranker & 0.1420 & 65.7371 & 86.9297 & 0.0652 & \textbf{0.9348} & 0.6800 \\
+conservative & 0.3440 & 74.8672 & 90.4820 & 0.1087 & 0.8913 & 0.8280 \\
+conservative\_no\_detconf & 0.3520 & \textbf{75.2174} & \textbf{90.5931} & 0.1087 & 0.8913 & 0.8340 \\
+conservative\_no\_edit & 0.3340 & 75.1148 & 90.4999 & \textbf{0.2174} & 0.7826 & \textbf{0.8560} \\
+\hline
+\end{tabular}
+\end{table}
