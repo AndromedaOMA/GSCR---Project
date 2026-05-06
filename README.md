@@ -11,7 +11,7 @@
 --------------------------------------------------------------------------------
 <h3 align="left">Keywords:</h3>
 
-NLP; Romanian language; grammar correction; spell checking; punctuation correction; stylistic improvement; preprocessing; RoBERT; MarianMT; PyTorch; Active Learning; pattern matching; tokenization; POS tagging; diacritic normalization; text editors integration; continuous optimization; user feedback; real-time correction; Apache Spark; Teprolin; spaCy; generative AI; linguistic analysis
+NLP; Romanian language; grammar correction; spell checking; punctuation correction; stylistic improvement; preprocessing; RoBERT; T5; PyTorch; Active Learning; pattern matching; tokenization; POS tagging; diacritic normalization; text editors integration; continuous optimization; user feedback; real-time correction; Apache Spark; Teprolin; spaCy; generative AI; linguistic analysis
 
 <h1 id="brief" align="left">Brief Description of the Assignment:</h1>
 
@@ -30,7 +30,7 @@ The solution is structured around several essential modules:
 
 <h3 align="left">Automatic Correction Module:</h3>
 
-○ This module uses powerful language models such as MarianMT to automatically suggest corrections. It offers several correction options and ranks them to suggest the best one.
+○ This module uses powerful language models such as T5 to automatically suggest corrections. It offers several correction options and ranks them to suggest the best one.
 
 <h3 align="left">Continuous Optimization Through Active Learning and Integrating with Writing Tools:</h3>
 
@@ -58,7 +58,7 @@ The main objectives to achieve through this assignment include:
 <h1 id="tech" align="left">Technologies and Programming Languages:</h1>
 
 ● Programming Language: Python </br>
-● Frameworks and Libraries: PyTorch, Teprolin, spaCy, MarianMT, RoBERT </br>
+● Frameworks and Libraries: PyTorch, Teprolin, spaCy, T5, RoBERT </br>
 ● Additional Tools: pattern-matching algorithms, dictionary-based spell-checking, Active Learning frameworks </br>
 
 <h1 id="stages" align="left">Implementation Stages:</h1>
@@ -66,7 +66,7 @@ The main objectives to achieve through this assignment include:
 Phase 1 (Research and Setup): Literature review, dataset collection, setting up development environment. </br>
 Phase 2 (Preprocessing Module Implementation): Implementing tokenization, POS tagging, diacritic normalization using Teprolin, spaCy. </br>
 Phase 3 (Error Detection Module Development): Fine-tuning RoBERT and integrating dictionary-based and pattern-matching error detection. </br>
-Phase 4 (Automatic Correction Module): Implementing and fine-tuning MarianMT for generating and ranking correction suggestions. </br>
+Phase 4 (Automatic Correction Module): Implementing and fine-tuning T5 for generating and ranking correction suggestions. </br>
 Phase 5 (Continuous Optimization and Testing): User feedback integration, active learning framework implementation, iterative optimization. </br>
 Phase 6 (Deployment): Integration with text editors and final system evaluation. </br>
   
